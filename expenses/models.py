@@ -36,6 +36,9 @@ class Expense(models.Model):
     date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name_plural = "Gastos"
+    
     def __str__(self):
         return f"{self.user.username} - {self.category.name if self.category else 'Sin categoría'}: {self.amount}€"
 
