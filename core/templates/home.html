@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio</title>
+</head>
+<body>
+    <h1>Bienvenido, {{ user.username }}!</h1>
+
+    <p>Tu ingreso mensual es: {{ user.monthly_income }}</p>
+
+    <ul>
+        <li><a href="{% url 'logout' %}">Cerrar sesión</a></li>
+    </ul>
+</body>
+</html>
