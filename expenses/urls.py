@@ -1,9 +1,9 @@
 from django.urls import path
-from .views import CategoryListCreateAPIView, ExpenseListCreateAPIView, ExpenseRetrieveUpdateDestroyAPIView
+from .views import CategoryListCreateAPIView, CategoryRetrieveUpdateDestroyAPIView, ExpenseListCreateAPIView, ExpenseRetrieveUpdateDestroyAPIView
 
 urlpatterns = [
-    path('api/categories/', CategoryListCreateAPIView.as_view(), name='api_categories'),
-    path('api/expenses/', ExpenseListCreateAPIView.as_view(), name='api_expenses'),
-    path('api/expenses/<int:pk>/',ExpenseRetrieveUpdateDestroyAPIView.as_view(),name='api_expense_detail'
-    ),
+    path('categories/', CategoryListCreateAPIView.as_view(), name='categories_list_create'),
+    path('categories/<int:pk>/', CategoryRetrieveUpdateDestroyAPIView.as_view(), name='category_detail'),
+    path('expenses/', ExpenseListCreateAPIView.as_view(), name='expenses_list_create'),
+    path('expenses/<int:pk>/', ExpenseRetrieveUpdateDestroyAPIView.as_view(), name='expense_detail'),
 ]

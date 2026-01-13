@@ -2,6 +2,7 @@ from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
 from .models import Category, Expense
 from .serializers import CategorySerializer, ExpenseSerializer
+from .permissions import IsOwner
 
 # API para listar y crear categorías del usuario autenticado.------> /API/categories
 class CategoryListCreateAPIView(generics.ListCreateAPIView):
@@ -15,6 +16,15 @@ class CategoryListCreateAPIView(generics.ListCreateAPIView):
     # POST -> Asigna el usuario al crear la categoria
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+# API para ver, editar o eliminar categorias del usuario autenticado.------> /API/categories/id
+class CategoryRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = CategorySerializer
+    permission_classes = [IsAuthenticated, IsOwner]
+
+    # GET -> Devuelve categorias del usuario
+    def get_queryset(self):
+        return Category.objects.all()
 
 # API para listar y crear gastos del usuario autenticado.------> /API/expenses
 class ExpenseListCreateAPIView(generics.ListCreateAPIView):
@@ -32,9 +42,9 @@ class ExpenseListCreateAPIView(generics.ListCreateAPIView):
 # API para ver, editar o eliminar gastos del usuario autenticado.------> /API/expenses/id
 class ExpenseRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ExpenseSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsOwner]
 
     # GET -> Devuelve gastos del usuario
     def get_queryset(self):
-        return Expense.objects.filter(user=self.request.user)
+        return Expense.objects.all()
 
