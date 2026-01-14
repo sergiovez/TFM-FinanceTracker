@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from django.utils.html import escape
 from datetime import date
 from .models import Category, Expense
 
@@ -11,6 +12,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     # Evita que un usuario cree dos categorías con el mismo nombre.
     def validate_name(self, value):
+        value = escape(value)
         request = self.context.get('request')
         user = request.user if request else None
 
@@ -55,6 +57,9 @@ class ExpenseSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("La fecha no puede ser futura.")
         return value
     
+    def validate_description(self, value):
+        return escape(value)
+
     # Validaciones de negocio
     def validate(self, attrs):
         user = self.context['request'].user
