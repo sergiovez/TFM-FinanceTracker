@@ -41,20 +41,25 @@ class ExpenseSerializer(serializers.ModelSerializer):
             'category',
             'category_name'
         ]
-        read_only_fields = ['id']
+        read_only_fields = ['id', 'category_name']
 
     # El importe del gasto debe ser mayor que cero.
     def validate_amount(self, value):
         if value <= 0:
-            raise serializers.ValidationError(
-                "El importe debe ser mayor que cero."
-            )
+            raise serializers.ValidationError("El importe debe ser mayor que cero.")
         return value
 
     # La fecha debe ser una fecha pasada
     def validate_date(self, value):
         if value > date.today():
-            raise serializers.ValidationError(
-                "La fecha no puede ser futura."
-            )
+            raise serializers.ValidationError("La fecha no puede ser futura.")
         return value
+    
+    # Validaciones de negocio
+    def validate(self, attrs):
+        user = self.context['request'].user
+        category = attrs.get('category')
+
+        if category.user is not None and category.user != user:
+            raise serializers.ValidationError("La categoría no pertenece al usuario")
+        return attrs
