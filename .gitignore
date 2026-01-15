@@ -19,4 +19,11 @@ db.sqlite3
 .DS_Store
 Thumbs.db
 
+# Backups
 /backups/
+finance_tracker/scripts/backup_db.py
+
+# React / Vite
+node_modules/
+dist/
+*.log
