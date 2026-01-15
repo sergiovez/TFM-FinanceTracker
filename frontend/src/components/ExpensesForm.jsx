@@ -5,9 +5,11 @@ export default function ExpensesForm({ onSuccess }) {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState("");
+  const [error, setError] = useState(null);
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setError(null);
     try {
       await createExpense({ amount, category, date });
       onSuccess();
@@ -15,7 +17,7 @@ export default function ExpensesForm({ onSuccess }) {
       setCategory("");
       setDate("");
     } catch (err) {
-      alert(err.message);
+      setError(err.message);
     }
   }
 
@@ -25,6 +27,8 @@ export default function ExpensesForm({ onSuccess }) {
       <input type="text" value={category} onChange={e => setCategory(e.target.value)} placeholder="Categoría" required />
       <input type="date" value={date} onChange={e => setDate(e.target.value)} required />
       <button type="submit">Añadir gasto</button>
+      {error && <p className="error">{error}</p>}
     </form>
   );
 }
+

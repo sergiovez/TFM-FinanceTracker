@@ -1,23 +1,46 @@
 import React, { useEffect, useState } from "react";
-import { fetchExpenses } from "../api";
+import { fetchExpenses, deleteExpense } from "../api";
 
 export default function ExpensesList() {
   const [expenses, setExpenses] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    async function load() {
+    let cancelled = false;
+
+    async function loadExpenses() {
       try {
         const data = await fetchExpenses();
-        setExpenses(data);
+        if (!cancelled) {
+          setExpenses(data);
+        }
       } catch (err) {
-        setError(err.message);
+        if (!cancelled) {
+          setError(err.message);
+        }
       }
     }
-    load();
+
+    loadExpenses();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  if (error) return <p>Error: {error}</p>;
+  async function handleDelete(id) {
+    if (!window.confirm("¿Eliminar este gasto?")) return;
+
+    try {
+      await deleteExpense(id);
+      const data = await fetchExpenses();
+      setExpenses(data);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  if (error) return <p className="error">{error}</p>;
 
   return (
     <div>
@@ -26,10 +49,10 @@ export default function ExpensesList() {
         {expenses.map(e => (
           <li key={e.id}>
             {e.date} - {e.category_name}: {e.amount} €
+            <button onClick={() => handleDelete(e.id)}>Eliminar</button>
           </li>
         ))}
       </ul>
     </div>
   );
 }
-
