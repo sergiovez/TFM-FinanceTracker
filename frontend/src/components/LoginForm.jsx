@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../AuthContext";
+import { useAuth } from "../useAuth";
 
 export default function LoginForm() {
   const { login } = useAuth();
@@ -17,8 +17,8 @@ export default function LoginForm() {
       await login(username, password);
       setUsername("");
       setPassword("");
-    } catch {
-      setError("Usuario o contraseña incorrectos");
+    } catch (error){
+      setError(error.message | "Usuario o contraseña incorrectos");
     } finally {
       setSubmitting(false);
     }

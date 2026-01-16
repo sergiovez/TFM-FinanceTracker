@@ -11,7 +11,6 @@ export function getCSRFToken() {
   return "";
 }
 
-// Helper centralizado para fetch con sesión y CSRF
 async function fetchWithSession(url, options = {}) {
   const opts = {
     credentials: "include",
@@ -27,16 +26,30 @@ async function fetchWithSession(url, options = {}) {
   }
 
   const res = await fetch(url, opts);
+
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`HTTP ${res.status}: ${text}`);
+    let errorMessage = `HTTP ${res.status}`;
+    try {
+      const data = await res.json();
+      errorMessage = data.detail || errorMessage;
+    } catch {
+      const text = await res.text();
+      if (text) errorMessage = text;
+    }
+
+    if (res.status === 401) {
+      if (typeof window.logout === "function") window.logout();
+      throw new Error("No estás autenticado. Inicia sesión de nuevo.");
+    }
+    if (res.status === 403) {
+      throw new Error("No tienes permisos para realizar esta acción.");
+    }
+
+    throw new Error(errorMessage);
   }
 
   const contentType = res.headers.get("content-type");
-  if (contentType && contentType.includes("application/json")) {
-    return res.json();
-  }
-
+  if (contentType?.includes("application/json")) return res.json();
   return res;
 }
 

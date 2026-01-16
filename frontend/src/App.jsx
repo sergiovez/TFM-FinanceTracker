@@ -1,7 +1,9 @@
 import { useState } from "react";
 import "./App.css";
 
-import { AuthProvider, useAuth } from "./AuthContext";
+import { AuthProvider } from "./AuthContext";
+import { useAuth } from "./useAuth";
+
 import LoginForm from "./components/LoginForm";
 
 import Dashboard from "./components/Dashboard";
