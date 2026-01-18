@@ -17,8 +17,8 @@ export default function LoginForm() {
       await login(username, password);
       setUsername("");
       setPassword("");
-    } catch (error){
-      setError(error.message | "Usuario o contraseña incorrectos");
+    } catch (err) {
+      setError(err.message || "Usuario o contraseña incorrectos");
     } finally {
       setSubmitting(false);
     }
@@ -32,14 +32,20 @@ export default function LoginForm() {
         <input
           type="text"
           value={username}
-          onChange={e => setUsername(e.target.value)}
+          onChange={e => {
+            setUsername(e.target.value);
+            if (error) setError(null);
+          }}
           placeholder="Usuario"
           required
         />
         <input
           type="password"
           value={password}
-          onChange={e => setPassword(e.target.value)}
+          onChange={e => {
+            setPassword(e.target.value);
+            if (error) setError(null);
+          }}
           placeholder="Contraseña"
           required
         />
