@@ -32,7 +32,7 @@ function AppContent() {
       </header>
 
       <section>
-        <Dashboard />
+        <Dashboard reload={reloadExpenses} />
       </section>
 
       <hr />

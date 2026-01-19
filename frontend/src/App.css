@@ -89,3 +89,73 @@ button:disabled {
   color: #4caf50;
   margin: 0.5rem 0;
 }
+
+select.input,
+select {
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-right: 0.5rem;
+  background-color: white;
+}
+
+.monthly-list li {
+  display: flex;
+  justify-content: flex-start;
+  gap: 0.5rem;
+}
+
+.category-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.category-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.category-actions button {
+  width: 90px;
+}
+
+input,
+select {
+  height: 38px;
+  box-sizing: border-box;
+  line-height: 38px;
+}
+
+.btn-delete {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+}
+
+.btn-delete:hover {
+  background-color: #c9302c;
+}
+
+.category-form {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.category-form input,
+.category-form button {
+  height: 38px;
+}
+
+.expense-form {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.expense-form input,
+.expense-form select,
+.expense-form button {
+  height: 38px;
+}
+

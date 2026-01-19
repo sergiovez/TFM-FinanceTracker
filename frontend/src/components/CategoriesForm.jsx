@@ -10,10 +10,17 @@ export default function CategoriesForm({ onSuccess }) {
   async function handleSubmit(e) {
     e.preventDefault();
     setError(null);
+
+    if (!name.trim()) {
+      setError("El nombre de la categoría no puede estar vacío");
+      return;
+    }
+
     setSubmitting(true);
 
     try {
-      await createCategory({ name });
+      const formattedName = name.trim().charAt(0).toUpperCase() + name.trim().slice(1).toLowerCase();
+      await createCategory({ name: formattedName });
       setName("");
       onSuccess();
       setSuccess("Categoría creada correctamente");
@@ -26,9 +33,10 @@ export default function CategoriesForm({ onSuccess }) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form className= "category-form" onSubmit={handleSubmit}>
       {error && <p className="error">{error}</p>}
       {success && <p className="success">{success}</p>}
+
       <input
         type="text"
         value={name}
@@ -37,8 +45,8 @@ export default function CategoriesForm({ onSuccess }) {
           if (error) setError(null);
         }}
         placeholder="Nombre categoría"
-        required
       />
+
       <button type="submit" disabled={submitting}>
         {submitting ? "Añadiendo..." : "Añadir categoría"}
       </button>
