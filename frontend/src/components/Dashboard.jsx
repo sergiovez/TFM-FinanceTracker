@@ -1,13 +1,18 @@
-import React, { useEffect, useState } from 'react';
-import { PieChart, Pie, Cell, Tooltip } from 'recharts';
-import { fetchExpensesByCategory, fetchExpensesByMonth, fetchLatestExpenses } from '../api';
+import React, { useEffect, useMemo, useState } from "react";
+import { PieChart, Pie, Cell, Tooltip } from "recharts";
+import {
+  fetchExpensesByCategory,
+  fetchExpensesByMonth,
+  fetchLatestExpenses,
+} from "../api";
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 
 export default function Dashboard() {
   const [categoryData, setCategoryData] = useState([]);
   const [monthlyData, setMonthlyData] = useState([]);
   const [latestExpenses, setLatestExpenses] = useState([]);
+  const [selectedMonth, setSelectedMonth] = useState("");
 
   useEffect(() => {
     async function loadData() {
@@ -22,18 +27,55 @@ export default function Dashboard() {
     loadData();
   }, []);
 
-  const totalLatest = latestExpenses.reduce((sum, e) => sum + e.amount, 0);
+  // ---- Filtro por mes ----
+  const filteredLatestExpenses = useMemo(() => {
+    if (!selectedMonth) return latestExpenses;
+    return latestExpenses.filter(
+      e => String(e.date).slice(0, 7) === selectedMonth
+    );
+  }, [latestExpenses, selectedMonth]);
+
+  const filteredCategoryData = useMemo(() => {
+    if (!selectedMonth) return categoryData;
+    return categoryData.filter(c => c.month === selectedMonth);
+  }, [categoryData, selectedMonth]);
+
+  // ---- Totales ----
+  const totalLatest = filteredLatestExpenses.reduce(
+    (sum, e) => sum + Number(e.amount),
+    0
+  );
 
   return (
     <div className="dashboard">
+      {/* FILTRO */}
+      <section>
+        <h2>Resumen</h2>
+        <label>
+          Mes:&nbsp;
+          <select
+            value={selectedMonth}
+            onChange={e => setSelectedMonth(e.target.value)}
+          >
+            <option value="">Todos</option>
+            {monthlyData.map(m => (
+              <option key={m.month} value={m.month}>
+                {m.month}
+              </option>
+            ))}
+          </select>
+        </label>
+      </section>
+
+      {/* GASTOS POR CATEGORÍA */}
       <section>
         <h2>Gastos por categoría</h2>
-        {categoryData.length === 0 ? (
+        {filteredCategoryData.length === 0 ? (
           <p>No hay datos</p>
         ) : (
           <PieChart width={300} height={300}>
             <Pie
-              data={categoryData}
+              data={filteredCategoryData}
               dataKey="total"
               nameKey="category"
               cx="50%"
@@ -41,8 +83,11 @@ export default function Dashboard() {
               outerRadius={100}
               label
             >
-              {categoryData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+              {filteredCategoryData.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
               ))}
             </Pie>
             <Tooltip />
@@ -50,6 +95,7 @@ export default function Dashboard() {
         )}
       </section>
 
+      {/* GASTOS MENSUALES */}
       <section>
         <h2>Gastos mensuales</h2>
         {monthlyData.length === 0 ? (
@@ -57,24 +103,31 @@ export default function Dashboard() {
         ) : (
           <ul>
             {monthlyData.map(item => (
-              <li key={item.month}>Mes {item.month}: {item.total} €</li>
+              <li key={item.month}>
+                <strong>{item.month}</strong>: {item.total} €
+              </li>
             ))}
           </ul>
         )}
       </section>
 
+      {/* ÚLTIMOS GASTOS */}
       <section>
         <h2>Últimos gastos</h2>
-        {latestExpenses.length === 0 ? (
+        {filteredLatestExpenses.length === 0 ? (
           <p>No hay datos</p>
         ) : (
           <>
             <ul>
-              {latestExpenses.map(e => (
-                <li key={e.id}>{e.date} - {e.category} - {e.amount} €</li>
+              {filteredLatestExpenses.map(e => (
+                <li key={e.id}>
+                  {e.date} — {e.category} — {e.amount} €
+                </li>
               ))}
             </ul>
-            <p>Total últimos gastos: {totalLatest} €</p>
+            <p>
+              <strong>Total:</strong> {totalLatest} €
+            </p>
           </>
         )}
       </section>
