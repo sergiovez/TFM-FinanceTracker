@@ -8,16 +8,19 @@ import pandas as pd
 
 class ExpensesByCategoryAPIView(APIView):
     permission_classes = [IsAuthenticated] 
+
     def get(self, request):
         expenses = (
             Expense.objects
-            .filter(user=request.user) 
-            .values('category__name') 
-            .annotate(total=Sum('amount')) 
+            .filter(user=request.user)
+            .extra(select={'month': "strftime('%%m', date)"})
+            .values('category__name', 'month')
+            .annotate(total=Sum('amount'))
         )
         data = [
             {
                 'category': e['category__name'], 
+                'month': e['month'],
                 'total': e['total']
             }
             for e in expenses
@@ -26,11 +29,12 @@ class ExpensesByCategoryAPIView(APIView):
 
 class ExpensesByMonthAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         expenses = (
             Expense.objects
             .filter(user=request.user)
-            .extra(select={'month': "strftime('%%m', date)"}) 
+            .extra(select={'month': "strftime('%%m', date)"})
             .values('month')
             .annotate(total=Sum('amount'))
             .order_by('month')
@@ -39,6 +43,7 @@ class ExpensesByMonthAPIView(APIView):
 
 class LatestExpensesAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         expenses = (
             Expense.objects
@@ -56,9 +61,9 @@ class LatestExpensesAPIView(APIView):
         ]
         return Response(data)
 
-
 class ExportExpensesExcelAPIView(APIView):
     permission_classes = [IsAuthenticated]
+
     def get(self, request):
         expenses = Expense.objects.filter(user=request.user)
         data = [
@@ -76,3 +81,27 @@ class ExportExpensesExcelAPIView(APIView):
         response['Content-Disposition'] = 'attachment; filename=expenses.xlsx'
         df.to_excel(response, index=False)
         return response
+
+class IncomeSummaryAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        month = request.query_params.get("month")
+
+        expenses = Expense.objects.filter(user=user)
+
+        if month and month != "all":
+            expenses = expenses.filter(date__month=int(month))
+
+        expenses_total = expenses.aggregate(
+            total=Sum("amount")
+        )["total"] or 0
+
+        income = user.monthly_income or 0
+
+        return Response({
+            "income": float(income),
+            "expenses": float(expenses_total),
+            "savings": float(income - expenses_total),
+        })

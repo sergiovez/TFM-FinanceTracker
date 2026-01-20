@@ -27,26 +27,32 @@ async function fetchWithSession(url, options = {}) {
 
   const res = await fetch(url, opts);
 
-  if (!res.ok) {
-    let errorMessage = `HTTP ${res.status}`;
-    try {
-      const data = await res.json();
-      errorMessage = data.detail || errorMessage;
-    } catch {
-      const text = await res.text();
-      if (text) errorMessage = text;
-    }
+if (!res.ok) {
+  let errorMessage = `HTTP ${res.status}`;
+  try {
+    const data = await res.json();
 
-    if (res.status === 401) {
-      if (typeof window.logout === "function") window.logout();
-      throw new Error("No estás autenticado. Inicia sesión de nuevo.");
+    if (data.detail) errorMessage = data.detail;
+    else if (typeof data === 'object') {
+      const firstKey = Object.keys(data)[0];
+      if (Array.isArray(data[firstKey])) errorMessage = data[firstKey][0];
+      else errorMessage = data[firstKey];
     }
-    if (res.status === 403) {
-      throw new Error("No tienes permisos para realizar esta acción.");
-    }
-
-    throw new Error(errorMessage);
+  } catch {
+    const text = await res.text();
+    if (text) errorMessage = text;
   }
+
+  if (res.status === 401) {
+    if (typeof window.logout === "function") window.logout();
+    throw new Error("No estás autenticado. Inicia sesión de nuevo.");
+  }
+  if (res.status === 403) {
+    throw new Error("No tienes permisos para realizar esta acción.");
+  }
+
+  throw new Error(errorMessage);
+}
 
   const contentType = res.headers.get("content-type");
   if (contentType?.includes("application/json")) return res.json();
@@ -140,6 +146,12 @@ export function fetchExpensesByMonth() {
 
 export function fetchLatestExpenses() {
   return fetchWithSession(`${API_BASE}/dashboard/latest-expenses/`);
+}
+
+export function fetchIncomeSummary(month = "all") {
+  return fetchWithSession(
+    `${API_BASE}/dashboard/income-summary/?month=${month}`
+  );
 }
 
 // ---- AUTH ----

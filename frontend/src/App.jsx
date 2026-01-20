@@ -47,7 +47,7 @@ function AppContent() {
 
       <section>
         <h2>Gastos</h2>
-        <ExpensesForm onSuccess={() => setReloadExpenses(!reloadExpenses)} />
+        <ExpensesForm onSuccess={() => setReloadExpenses(!reloadExpenses)} reloadCategories={reloadCategories}/>
         <ExpensesList key={reloadExpenses} />
       </section>
     </div>

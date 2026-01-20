@@ -1,25 +1,25 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { PieChart, Pie, Cell, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import {
   fetchExpensesByCategory,
   fetchExpensesByMonth,
   fetchLatestExpenses,
+  fetchIncomeSummary,
 } from "../api";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-
 const MONTH_NAMES = {
-  "01": "Enero",
-  "02": "Febrero",
-  "03": "Marzo",
+  "01": "Enero", 
+  "02": "Febrero", 
+  "03": "Marzo", 
   "04": "Abril",
-  "05": "Mayo",
-  "06": "Junio",
-  "07": "Julio",
+  "05": "Mayo", 
+  "06": "Junio", 
+  "07": "Julio", 
   "08": "Agosto",
-  "09": "Septiembre",
-  "10": "Octubre",
-  "11": "Noviembre",
+  "09": "Septiembre", 
+  "10": "Octubre", 
+  "11": "Noviembre", 
   "12": "Diciembre",
 };
 
@@ -28,10 +28,26 @@ export default function Dashboard({ reload }) {
   const [monthlyData, setMonthlyData] = useState([]);
   const [latestExpenses, setLatestExpenses] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState("");
+  const [incomeSummary, setIncomeSummary] = useState({ income: 0, expenses: 0, savings: 0 });
 
   useEffect(() => {
     loadData();
   }, [reload]);
+
+  useEffect(() => {
+  async function loadIncomeSummary() {
+    try {
+      const summary = await fetchIncomeSummary(
+        selectedMonth || "all"
+      );
+      setIncomeSummary(summary);
+    } catch (err) {
+      console.error("Error cargando resumen:", err.message);
+    }
+  }
+
+  loadIncomeSummary();
+  }, [selectedMonth]);
 
   async function loadData() {
     try {
@@ -45,15 +61,20 @@ export default function Dashboard({ reload }) {
 
   const filteredLatestExpenses = useMemo(() => {
     if (!selectedMonth) return latestExpenses;
-    return latestExpenses.filter(
-      e => String(e.date).slice(5, 7) === selectedMonth
-    );
+    return latestExpenses.filter(e => String(e.date).slice(5, 7) === selectedMonth);
   }, [latestExpenses, selectedMonth]);
 
-  const totalLatest = filteredLatestExpenses.reduce(
-    (sum, e) => sum + Number(e.amount),
-    0
-  );
+  const filteredCategoryData = useMemo(() => {
+    if (!selectedMonth) return categoryData;
+    return categoryData.filter(c => c.month === selectedMonth);
+  }, [categoryData, selectedMonth]);
+
+  const filteredMonthlyData = useMemo(() => {
+    if (!selectedMonth) return monthlyData;
+    return monthlyData.filter(m => m.month === selectedMonth);
+  }, [monthlyData, selectedMonth]);
+
+  const totalLatest = filteredLatestExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
 
   return (
     <div className="dashboard">
@@ -66,41 +87,34 @@ export default function Dashboard({ reload }) {
         >
           <option value="">Todos</option>
           {monthlyData.map(m => (
-            <option key={m.month} value={m.month}>
-              {MONTH_NAMES[m.month]}
-            </option>
+            <option key={m.month} value={m.month}>{MONTH_NAMES[m.month]}</option>
           ))}
         </select>
+        <div>
+          <p>Ingresos: {incomeSummary.income} €</p>
+          <p>Gastos: {incomeSummary.expenses} €</p>
+          <p>Ahorro: {incomeSummary.savings} €</p>
+        </div>
       </section>
+
       <section>
         <h2>Gastos por categoría</h2>
-
-        {categoryData.length === 0 ? (
-          <p>No hay datos</p>
-        ) : (
+        {filteredCategoryData.length === 0 ? <p>No hay datos</p> :
           <PieChart width={350} height={250}>
-            <Pie
-              data={categoryData}
-              dataKey="total"
-              nameKey="category"
-              cx="50%"
-              cy="50%"
-              outerRadius={80}
-              label
-            >
-              {categoryData.map((_, index) => (
-                <Cell key={index} fill={COLORS[index % COLORS.length]} />
-              ))}
+            <Pie data={filteredCategoryData} dataKey="total" nameKey="category" 
+              cx="50%" cy="50%" outerRadius={80} label={({ value }) => `${value} €`}>
+              {filteredCategoryData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
             </Pie>
-            <Tooltip />
+            <Legend />
+            <Tooltip formatter={(value) => `${value} €`} />
           </PieChart>
-        )}
+        }
       </section>
 
       <section>
         <h2>Gastos mensuales</h2>
         <ul className="monthly-list">
-          {monthlyData.map(item => (
+          {filteredMonthlyData.map(item => (
             <li key={item.month}>
               <strong>{MONTH_NAMES[item.month]}</strong>: {item.total} €
             </li>
@@ -110,20 +124,16 @@ export default function Dashboard({ reload }) {
 
       <section>
         <h2>Últimos gastos</h2>
-        {filteredLatestExpenses.length === 0 ? (
-          <p>No hay datos</p>
-        ) : (
+        {filteredLatestExpenses.length === 0 ? <p>No hay datos</p> :
           <>
             <ul>
               {filteredLatestExpenses.map(e => (
-                <li key={e.id}>
-                  {e.date} — {e.category} — {e.amount} €
-                </li>
+                <li key={e.id}>{e.date} — {e.category} — {e.amount} €</li>
               ))}
             </ul>
             <p><strong>Total:</strong> {totalLatest} €</p>
           </>
-        )}
+        }
       </section>
     </div>
   );

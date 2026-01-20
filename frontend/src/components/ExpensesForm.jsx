@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createExpense, fetchCategories } from "../api";
 
-export default function ExpensesForm({ onSuccess }) {
+export default function ExpensesForm({ onSuccess, reloadCategories}) {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState("");
@@ -12,7 +12,7 @@ export default function ExpensesForm({ onSuccess }) {
 
   useEffect(() => {
     loadCategories();
-  }, []);
+  }, [reloadCategories]);
 
   async function loadCategories() {
     try {
