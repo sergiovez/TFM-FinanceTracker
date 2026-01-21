@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import {
   fetchExpensesByCategory,
@@ -15,47 +15,52 @@ const MONTH_NAMES = {
   "09": "Septiembre", "10": "Octubre", "11": "Noviembre", "12": "Diciembre",
 };
 
-export default function Dashboard() {
+export default function Dashboard({ refreshKey }) {
   const [categoryData, setCategoryData] = useState([]);
   const [monthlyData, setMonthlyData] = useState([]);
   const [latestExpenses, setLatestExpenses] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState("");
-  const [incomeSummary, setIncomeSummary] = useState({ income: 0, expenses: 0, savings: 0 });
+  const [incomeSummary, setIncomeSummary] = useState({
+    income: 0,
+    expenses: 0,
+    savings: 0,
+  });
+  const [loading, setLoading] = useState(true);
   const { error, showError } = useError();
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [catData, monthData, latest] = await Promise.all([
-          fetchExpensesByCategory(),
-          fetchExpensesByMonth(),
-          fetchLatestExpenses(),
-        ]);
-        setCategoryData(catData);
-        setMonthlyData(monthData);
-        setLatestExpenses(latest);
-      } catch (err) {
-        showError(err);
-      }
+  const loadDashboard = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [catData, monthData, latest] = await Promise.all([
+        fetchExpensesByCategory(),
+        fetchExpensesByMonth(),
+        fetchLatestExpenses(),
+      ]);
+
+      const summary = await fetchIncomeSummary("all");
+
+      setCategoryData(catData);
+      setMonthlyData(monthData);
+      setLatestExpenses(latest);
+      setIncomeSummary(summary);
+    } catch (err) {
+      showError(err);
+    } finally {
+      setLoading(false);
     }
-    loadData();
   }, [showError]);
 
   useEffect(() => {
-    async function loadIncome() {
-      try {
-        const summary = await fetchIncomeSummary(selectedMonth || "all");
-        setIncomeSummary(summary);
-      } catch (err) {
-        showError(err);
-      }
-    }
-    loadIncome();
-  }, [selectedMonth, showError]);
+    loadDashboard();
+  }, [loadDashboard, refreshKey]);
+
+  // ===== FILTROS =====
 
   const filteredLatestExpenses = useMemo(() => {
     if (!selectedMonth) return latestExpenses;
-    return latestExpenses.filter(e => String(e.date).slice(5, 7) === selectedMonth);
+    return latestExpenses.filter(
+      e => String(e.date).slice(5, 7) === selectedMonth
+    );
   }, [latestExpenses, selectedMonth]);
 
   const filteredCategoryData = useMemo(() => {
@@ -68,7 +73,12 @@ export default function Dashboard() {
     return monthlyData.filter(m => m.month === selectedMonth);
   }, [monthlyData, selectedMonth]);
 
-  const totalLatest = filteredLatestExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+  const totalLatest = filteredLatestExpenses.reduce(
+    (sum, e) => sum + Number(e.amount),
+    0
+  );
+
+  if (loading) return <p>Cargando dashboard...</p>;
 
   return (
     <div className="dashboard">
@@ -76,12 +86,19 @@ export default function Dashboard() {
 
       <section>
         <h2>Resumen</h2>
-        <select className="input" value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)}>
+        <select
+          className="input"
+          value={selectedMonth}
+          onChange={e => setSelectedMonth(e.target.value)}
+        >
           <option value="">Todos</option>
           {monthlyData.map(m => (
-            <option key={m.month} value={m.month}>{MONTH_NAMES[m.month]}</option>
+            <option key={m.month} value={m.month}>
+              {MONTH_NAMES[m.month]}
+            </option>
           ))}
         </select>
+
         <div>
           <p>Ingresos: {incomeSummary.income} €</p>
           <p>Gastos: {incomeSummary.expenses} €</p>
@@ -91,16 +108,27 @@ export default function Dashboard() {
 
       <section>
         <h2>Gastos por categoría</h2>
-        {filteredCategoryData.length === 0 ? <p>No hay datos</p> :
+        {filteredCategoryData.length === 0 ? (
+          <p>No hay datos</p>
+        ) : (
           <PieChart width={350} height={250}>
-            <Pie data={filteredCategoryData} dataKey="total" nameKey="category" 
-              cx="50%" cy="50%" outerRadius={80} label={({ value }) => `${value} €`}>
-              {filteredCategoryData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+            <Pie
+              data={filteredCategoryData}
+              dataKey="total"
+              nameKey="category"
+              cx="50%"
+              cy="50%"
+              outerRadius={80}
+              label={({ value }) => `${value} €`}
+            >
+              {filteredCategoryData.map((_, i) => (
+                <Cell key={i} fill={COLORS[i % COLORS.length]} />
+              ))}
             </Pie>
             <Legend />
-            <Tooltip formatter={(value) => `${value} €`} />
+            <Tooltip formatter={value => `${value} €`} />
           </PieChart>
-        }
+        )}
       </section>
 
       <section>
@@ -116,16 +144,22 @@ export default function Dashboard() {
 
       <section>
         <h2>Últimos gastos</h2>
-        {filteredLatestExpenses.length === 0 ? <p>No hay datos</p> :
+        {filteredLatestExpenses.length === 0 ? (
+          <p>No hay datos</p>
+        ) : (
           <>
             <ul>
               {filteredLatestExpenses.map(e => (
-                <li key={e.id}>{e.date} — {e.category} — {e.amount} €</li>
+                <li key={e.id}>
+                  {e.date} — {e.category} — {e.amount} €
+                </li>
               ))}
             </ul>
-            <p><strong>Total:</strong> {totalLatest} €</p>
+            <p>
+              <strong>Total:</strong> {totalLatest} €
+            </p>
           </>
-        }
+        )}
       </section>
     </div>
   );

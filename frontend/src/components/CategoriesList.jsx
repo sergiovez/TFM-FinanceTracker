@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { fetchCategories, deleteCategory, updateCategory } from "../api";
 import { useError } from "../hooks/useError";
 
@@ -6,26 +6,37 @@ export default function CategoriesList({ categories, setCategories }) {
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState("");
   const [success, setSuccess] = useState(null);
+  const [loading, setLoading] = useState(true);
   const { error, showError } = useError();
 
-  useEffect(() => {
-    async function loadCategories() {
-      try {
-        const data = await fetchCategories();
-        setCategories(data);
-      } catch (err) {
-        showError(err);
-      }
+  const loadCategories = useCallback(async () => {
+    let isMounted = true;
+    setLoading(true);
+
+    try {
+      const data = await fetchCategories();
+      if (isMounted) setCategories(data);
+    } catch (err) {
+      if (isMounted) showError(err);
+    } finally {
+      if (isMounted) setLoading(false);
     }
-    loadCategories();
+
+    return () => {
+      isMounted = false;
+    };
   }, [setCategories, showError]);
+
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
 
   async function saveEdit(id) {
     try {
       await updateCategory(id, { name: editingName });
-
-      setCategories(categories.map(c => (c.id === id ? { ...c, name: editingName } : c)));
-
+      setCategories(categories.map(c =>
+        c.id === id ? { ...c, name: editingName } : c
+      ));
       setEditingId(null);
       setSuccess("Categoría actualizada");
       setTimeout(() => setSuccess(null), 2000);
@@ -36,18 +47,19 @@ export default function CategoriesList({ categories, setCategories }) {
 
   async function handleDelete(id) {
     if (!window.confirm("¿Eliminar esta categoría?")) return;
-
     try {
       await deleteCategory(id);
-
       setCategories(categories.filter(c => c.id !== id));
-
       setSuccess("Categoría eliminada");
       setTimeout(() => setSuccess(null), 2000);
     } catch (err) {
-      showError(err);
+      showError(      
+        err?.response?.data?.detail ||
+      "No se puede eliminar la categoría porque tiene gastos asociados");
     }
   }
+
+  if (loading) return <p>Cargando categorías...</p>;
 
   return (
     <div>
@@ -73,10 +85,10 @@ export default function CategoriesList({ categories, setCategories }) {
               ) : (
                 <>
                   <span>{c.name}</span>
-                  <div className="category-actions">
-                    <button onClick={() => { setEditingId(c.id); setEditingName(c.name); }}>Editar</button>
-                    <button className="btn-delete" onClick={() => handleDelete(c.id)}>Eliminar</button>
-                  </div>
+                  <button onClick={() => { setEditingId(c.id); setEditingName(c.name); }}>
+                    Editar
+                  </button>
+                  <button onClick={() => handleDelete(c.id)}>Eliminar</button>
                 </>
               )}
             </li>
