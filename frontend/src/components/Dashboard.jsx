@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 import {
   fetchExpensesByCategory,
@@ -6,58 +6,52 @@ import {
   fetchLatestExpenses,
   fetchIncomeSummary,
 } from "../api";
+import { useError } from "../hooks/useError";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 const MONTH_NAMES = {
-  "01": "Enero", 
-  "02": "Febrero", 
-  "03": "Marzo", 
-  "04": "Abril",
-  "05": "Mayo", 
-  "06": "Junio", 
-  "07": "Julio", 
-  "08": "Agosto",
-  "09": "Septiembre", 
-  "10": "Octubre", 
-  "11": "Noviembre", 
-  "12": "Diciembre",
+  "01": "Enero", "02": "Febrero", "03": "Marzo", "04": "Abril",
+  "05": "Mayo", "06": "Junio", "07": "Julio", "08": "Agosto",
+  "09": "Septiembre", "10": "Octubre", "11": "Noviembre", "12": "Diciembre",
 };
 
-export default function Dashboard({ reload }) {
+export default function Dashboard() {
   const [categoryData, setCategoryData] = useState([]);
   const [monthlyData, setMonthlyData] = useState([]);
   const [latestExpenses, setLatestExpenses] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState("");
   const [incomeSummary, setIncomeSummary] = useState({ income: 0, expenses: 0, savings: 0 });
+  const { error, showError } = useError();
 
   useEffect(() => {
+    async function loadData() {
+      try {
+        const [catData, monthData, latest] = await Promise.all([
+          fetchExpensesByCategory(),
+          fetchExpensesByMonth(),
+          fetchLatestExpenses(),
+        ]);
+        setCategoryData(catData);
+        setMonthlyData(monthData);
+        setLatestExpenses(latest);
+      } catch (err) {
+        showError(err);
+      }
+    }
     loadData();
-  }, [reload]);
+  }, [showError]);
 
   useEffect(() => {
-  async function loadIncomeSummary() {
-    try {
-      const summary = await fetchIncomeSummary(
-        selectedMonth || "all"
-      );
-      setIncomeSummary(summary);
-    } catch (err) {
-      console.error("Error cargando resumen:", err.message);
+    async function loadIncome() {
+      try {
+        const summary = await fetchIncomeSummary(selectedMonth || "all");
+        setIncomeSummary(summary);
+      } catch (err) {
+        showError(err);
+      }
     }
-  }
-
-  loadIncomeSummary();
-  }, [selectedMonth]);
-
-  async function loadData() {
-    try {
-      setCategoryData(await fetchExpensesByCategory());
-      setMonthlyData(await fetchExpensesByMonth());
-      setLatestExpenses(await fetchLatestExpenses());
-    } catch (err) {
-      console.error("Error cargando dashboard:", err.message);
-    }
-  }
+    loadIncome();
+  }, [selectedMonth, showError]);
 
   const filteredLatestExpenses = useMemo(() => {
     if (!selectedMonth) return latestExpenses;
@@ -78,13 +72,11 @@ export default function Dashboard({ reload }) {
 
   return (
     <div className="dashboard">
+      {error && <p className="error">{error}</p>}
+
       <section>
         <h2>Resumen</h2>
-        <select
-          className="input"
-          value={selectedMonth}
-          onChange={e => setSelectedMonth(e.target.value)}
-        >
+        <select className="input" value={selectedMonth} onChange={e => setSelectedMonth(e.target.value)}>
           <option value="">Todos</option>
           {monthlyData.map(m => (
             <option key={m.month} value={m.month}>{MONTH_NAMES[m.month]}</option>

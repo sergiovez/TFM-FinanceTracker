@@ -5,7 +5,6 @@ import { AuthProvider } from "./AuthContext";
 import { useAuth } from "./useAuth";
 
 import LoginForm from "./components/LoginForm";
-
 import Dashboard from "./components/Dashboard";
 import CategoriesForm from "./components/CategoriesForm";
 import CategoriesList from "./components/CategoriesList";
@@ -14,11 +13,11 @@ import ExpensesList from "./components/ExpensesList";
 
 function AppContent() {
   const { user, logout, loading } = useAuth();
-  const [reloadCategories, setReloadCategories] = useState(false);
-  const [reloadExpenses, setReloadExpenses] = useState(false);
+
+  const [categories, setCategories] = useState([]);
+  const [expenses, setExpenses] = useState([]);
 
   if (loading) return <p>Cargando...</p>;
-
   if (!user) return <LoginForm />;
 
   return (
@@ -32,23 +31,38 @@ function AppContent() {
       </header>
 
       <section>
-        <Dashboard reload={reloadExpenses} />
+        <Dashboard 
+          expenses={expenses} 
+          categories={categories} 
+        />
       </section>
 
       <hr />
 
       <section>
         <h2>Categorías</h2>
-        <CategoriesForm onSuccess={() => setReloadCategories(!reloadCategories)} />
-        <CategoriesList key={reloadCategories} />
+        <CategoriesForm
+          // CAMBIO B3: callback para agregar directamente la nueva categoría
+          onAddCategory={(newCategory) => setCategories([...categories, newCategory])}
+        />
+        <CategoriesList
+          categories={categories}
+          setCategories={setCategories} // CAMBIO B3: pasamos setCategories para borrar/editar
+        />
       </section>
 
       <hr />
 
       <section>
         <h2>Gastos</h2>
-        <ExpensesForm onSuccess={() => setReloadExpenses(!reloadExpenses)} reloadCategories={reloadCategories}/>
-        <ExpensesList key={reloadExpenses} />
+        <ExpensesForm
+          categories={categories} // CAMBIO B3: recibimos categorías ya cargadas
+          onAddExpense={(newExpense) => setExpenses([...expenses, newExpense])} 
+        />
+        <ExpensesList
+          expenses={expenses}
+          setExpenses={setExpenses} // CAMBIO B3: actualizar el estado directamente
+        />
       </section>
     </div>
   );

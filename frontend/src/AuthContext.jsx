@@ -17,10 +17,12 @@ export function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    window.logout = logout;
-    return () => {
-      delete window.logout;
-    };
+    if (import.meta.env.DEV) {
+      window.logout = logout;
+      return () => {
+        delete window.logout;
+      };
+    }
   }, [logout]);
 
   useEffect(() => {

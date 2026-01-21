@@ -1,44 +1,26 @@
-import React, { useEffect, useState } from "react";
-import { fetchExpenses, deleteExpense } from "../api";
+import { deleteExpense } from "../api";
+import { useError } from "../hooks/useError";
 
-export default function ExpensesList() {
-  const [expenses, setExpenses] = useState([]);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
-
-  useEffect(() => {
-    let cancelled = false;
-    async function loadExpenses() {
-      try {
-        const data = await fetchExpenses();
-        if (!cancelled) setExpenses(data);
-      } catch (err) {
-        if (!cancelled) setError(err.message);
-      }
-    }
-    loadExpenses();
-    return () => { cancelled = true; };
-  }, []);
+export default function ExpensesList({ expenses, setExpenses }) {
+  const { error, showError } = useError();
 
   async function handleDelete(id) {
     if (!window.confirm("¿Eliminar este gasto?")) return;
+
     try {
       await deleteExpense(id);
-      const data = await fetchExpenses();
-      setExpenses(data);
-      setSuccess("Gasto eliminado");
-      setTimeout(() => setSuccess(null), 2000);
+
+      setExpenses(expenses.filter(e => e.id !== id));
     } catch (err) {
-      setError(err.message);
+      showError(err);
     }
   }
 
-  if (error) return <p className="error">{error}</p>;
   if (!expenses.length) return <p>No hay gastos.</p>;
 
   return (
     <div>
-      {success && <p className="success">{success}</p>}
+      {error && <p className="error">{error}</p>}
       <h2>Mis gastos</h2>
       <ul>
         {expenses.map(e => (

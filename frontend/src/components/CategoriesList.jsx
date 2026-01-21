@@ -1,58 +1,57 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { fetchCategories, deleteCategory, updateCategory } from "../api";
+import { useError } from "../hooks/useError";
 
-export default function CategoriesList() {
-  const [categories, setCategories] = useState([]);
+export default function CategoriesList({ categories, setCategories }) {
   const [editingId, setEditingId] = useState(null);
   const [editingName, setEditingName] = useState("");
-  const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
+  const { error, showError } = useError();
 
   useEffect(() => {
-    loadCategories();
-  }, []);
-
-  async function loadCategories() {
-    try {
-      const data = await fetchCategories();
-      setCategories(data);
-    } catch (err) {
-      setError(err.message);
+    async function loadCategories() {
+      try {
+        const data = await fetchCategories();
+        setCategories(data);
+      } catch (err) {
+        showError(err);
+      }
     }
-  }
+    loadCategories();
+  }, [setCategories, showError]);
 
   async function saveEdit(id) {
-    setError(null);
     try {
       await updateCategory(id, { name: editingName });
-      await loadCategories();
+
+      setCategories(categories.map(c => (c.id === id ? { ...c, name: editingName } : c)));
+
       setEditingId(null);
       setSuccess("Categoría actualizada");
       setTimeout(() => setSuccess(null), 2000);
     } catch (err) {
-      setError(err.message);
+      showError(err);
     }
   }
 
   async function handleDelete(id) {
     if (!window.confirm("¿Eliminar esta categoría?")) return;
-    setError(null);
 
     try {
       await deleteCategory(id);
-      await loadCategories();
+
+      setCategories(categories.filter(c => c.id !== id));
+
       setSuccess("Categoría eliminada");
       setTimeout(() => setSuccess(null), 2000);
     } catch (err) {
-      // ⬅️ AQUÍ está la clave: NO borramos la lista
-      setError(err.message || "No se puede eliminar la categoría");
+      showError(err);
     }
   }
 
   return (
     <div>
       <h2>Mis categorías</h2>
-
       {error && <p className="error">{error}</p>}
       {success && <p className="success">{success}</p>}
 
@@ -74,24 +73,9 @@ export default function CategoriesList() {
               ) : (
                 <>
                   <span>{c.name}</span>
-
                   <div className="category-actions">
-                    <button
-                      className="btn-edit"
-                      onClick={() => {
-                        setEditingId(c.id);
-                        setEditingName(c.name);
-                      }}
-                    >
-                      Editar
-                    </button>
-
-                    <button
-                      className="btn-delete"
-                      onClick={() => handleDelete(c.id)}
-                    >
-                      Eliminar
-                    </button>
+                    <button onClick={() => { setEditingId(c.id); setEditingName(c.name); }}>Editar</button>
+                    <button className="btn-delete" onClick={() => handleDelete(c.id)}>Eliminar</button>
                   </div>
                 </>
               )}
