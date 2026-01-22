@@ -19,6 +19,7 @@ export function useBootstrapData() {
   const [loading, setLoading] = useState(true);
   const { error, showError } = useError();
 
+  // Carga inicial de todos los datos de dashboard
   const load = useCallback(async () => {
     setLoading(true);
     try {

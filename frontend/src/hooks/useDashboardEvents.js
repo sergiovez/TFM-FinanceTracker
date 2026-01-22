@@ -1,3 +1,4 @@
+// Hook simple para emitir y escuchar eventos entre componentes
 const listeners = {};
 
 export function useDashboardEvents() {

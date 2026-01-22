@@ -25,7 +25,7 @@ class ExpensesAPITest(TestCase):
             category=self.cat_usertest1, user=self.usertest1, amount=50, date=date.today()
         )
 
-# ------------------- Categorías -------------------
+# ------------------------ Tests de Categorias ------------------------
     # GET: Devuelve categorias de usuario logueado
     def test_category_list_authenticated(self):
         self.client.login(username='usertest1', password='testpassword123')
@@ -133,7 +133,7 @@ class ExpensesAPITest(TestCase):
         self.assertEqual(response.status_code, 404)
 
 
-# ------------------- Gastos -------------------
+# ------------------------ Tests de Gastos ------------------------
     # GET: Devuelve gastos del usuario logueado
     def test_expense_list_authenticated(self):
         self.client.login(username='usertest1', password='testpassword123')

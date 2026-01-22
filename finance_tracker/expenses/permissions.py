@@ -1,6 +1,7 @@
 from rest_framework import permissions
 
-# Permite acceso solo al propietario del objeto. O lectura si el objeto es global. 
+# Permite acceso solo al propietario del objeto. 
+# Premite lectura si el objeto es global. 
 class IsOwnerOrReadOnly(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         # GET

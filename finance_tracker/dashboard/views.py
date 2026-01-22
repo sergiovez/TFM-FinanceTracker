@@ -6,7 +6,9 @@ from expenses.models import Expense
 from django.http import HttpResponse
 import pandas as pd
 
+# Devuelve un listado de gastos agrupados por categoría y mes.
 class ExpensesByCategoryAPIView(APIView):
+    # Solo usuarios autenticados
     permission_classes = [IsAuthenticated] 
 
     def get(self, request):
@@ -17,6 +19,7 @@ class ExpensesByCategoryAPIView(APIView):
             .values('category__name', 'month')
             .annotate(total=Sum('amount'))
         )
+        # Lo convertimos en lista de diccionarios
         data = [
             {
                 'category': e['category__name'], 
@@ -27,6 +30,7 @@ class ExpensesByCategoryAPIView(APIView):
         ]
         return Response(data)
 
+# Devuelve un listado de gastos totales por mes del usuario.
 class ExpensesByMonthAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -41,6 +45,7 @@ class ExpensesByMonthAPIView(APIView):
         )
         return Response(expenses)
 
+# Devuelve los 5 últimos gastos del usuario
 class LatestExpensesAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -61,6 +66,7 @@ class LatestExpensesAPIView(APIView):
         ]
         return Response(data)
 
+# Genera un archivo Excel con todos los gastos del usuario.
 class ExportExpensesExcelAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -82,6 +88,11 @@ class ExportExpensesExcelAPIView(APIView):
         df.to_excel(response, index=False)
         return response
 
+
+# Devuelve resumen mensual:
+    # income: ingreso mensual del usuario
+    # expenses: total de gastos en el mes (o todos si month=all)
+    # savings: income - expenses
 class IncomeSummaryAPIView(APIView):
     permission_classes = [IsAuthenticated]
 

@@ -4,16 +4,15 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST, require_GET
 import json
 
+# Forzar envío de la cookie csrftoken
 @ensure_csrf_cookie
 @require_GET
 def csrf(request):
-    """Forzar envío de la cookie csrftoken"""
     return JsonResponse({"detail": "CSRF cookie set"})
 
-
+# Login vía JSON con sesión Django
 @require_POST
 def login_api(request):
-    """Login vía JSON con sesión Django"""
     try:
         data = json.loads(request.body)
     except json.JSONDecodeError:
@@ -32,17 +31,15 @@ def login_api(request):
     login(request, user)
     return JsonResponse({"detail": "Login correcto", "username": user.username})
 
-
+# Logout del usuario
 @require_POST
 def logout_api(request):
-    """Logout del usuario"""
     logout(request)
     return JsonResponse({"detail": "Logout correcto"})
 
-
+# Devuelve info del usuario logueado
 @require_GET
 def me_api(request):
-    """Devuelve info del usuario logueado"""
     if not request.user.is_authenticated:
         return JsonResponse({"authenticated": False}, status=401)
 

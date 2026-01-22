@@ -11,6 +11,8 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
+# Configura la variable de entorno para usar los settings del proyecto
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'finance_tracker.settings')
 
+# Inicializa la aplicación WSGI de Django
 application = get_wsgi_application()

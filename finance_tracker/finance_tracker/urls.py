@@ -19,10 +19,10 @@ from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('api/auth/', include('users.urls_api')), 
-    path('', include('core.urls')),
-    path('api/', include('expenses.urls')),
-    path('api/dashboard/', include('dashboard.urls')),
+    path('', include('core.urls')),   # Página principal
+    path('admin/', admin.site.urls), # Admin de Django
+    path('api/', include('expenses.urls')), # CRUD de gastos y categorías
+    path('api/auth/', include('users.urls_api')), # Endpoints de login, logout, csrf
+    path('api/dashboard/', include('dashboard.urls')), # Reportes y exportación de gastos
 ]
 

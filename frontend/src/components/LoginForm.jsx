@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useAuth } from "../useAuth";
+import { useAuth } from "../auth/useAuth";
 import { useError } from "../hooks/useError";
 
 export default function LoginForm() {

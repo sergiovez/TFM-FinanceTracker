@@ -29,9 +29,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = []
 
-
-# Application definition
-
+# ------------------------ Apps instaladas ------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # Utilidades
+    # Librerias externas
     'rest_framework',
     'corsheaders',
 
@@ -50,6 +48,7 @@ INSTALLED_APPS = [
     'core',
 ]
 
+# ------------------------ Middleware ------------------------
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
@@ -63,10 +62,11 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'finance_tracker.urls'
 
+# ------------------------ Templates ------------------------
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [], # Carpeta de templates del backend
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,10 +80,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'finance_tracker.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
+# ------------------------ Base de datos ------------------------
 DATABASES = {
     'default': {
         'ENGINE': config('DB_ENGINE', default='django.db.backends.sqlite3'),
@@ -91,10 +88,7 @@ DATABASES = {
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
+# ------------------------ Validación de passwords ------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -110,10 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
+# ------------------------ Internacionalización ------------------------
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
@@ -122,19 +113,13 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
+# ------------------------ Archivos estáticos ------------------------
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
 AUTH_USER_MODEL = 'users.CustomUser'
 
+# ------------------------ REST -----------------------
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
@@ -144,14 +129,13 @@ REST_FRAMEWORK = {
     ],
 }
 
+# ------------------------ CSRF y CORS ------------------------
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False 
 CSRF_TRUSTED_ORIGINS = ['http://localhost:5173'] 
 
-
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",  
 ]
-
 CORS_ALLOW_CREDENTIALS = True

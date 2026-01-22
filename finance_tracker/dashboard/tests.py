@@ -6,6 +6,7 @@ from datetime import date
 
 User = get_user_model()
 
+# ------------------------ Tests del Dashboard ------------------------
 class DashboardAPITestCase(TestCase):
     def setUp(self):
         # Usuarios
