@@ -1,12 +1,6 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useMemo, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
-import {
-  fetchExpensesByCategory,
-  fetchExpensesByMonth,
-  fetchLatestExpenses,
-  fetchIncomeSummary,
-} from "../api";
-import { useError } from "../hooks/useError";
+import { parseISO, format } from "date-fns";
 
 const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
 const MONTH_NAMES = {
@@ -15,52 +9,18 @@ const MONTH_NAMES = {
   "09": "Septiembre", "10": "Octubre", "11": "Noviembre", "12": "Diciembre",
 };
 
-export default function Dashboard({ refreshKey }) {
-  const [categoryData, setCategoryData] = useState([]);
-  const [monthlyData, setMonthlyData] = useState([]);
-  const [latestExpenses, setLatestExpenses] = useState([]);
+export default function Dashboard({
+  categoryData,
+  monthlyData,
+  latestExpenses,
+  incomeSummary
+}) {
   const [selectedMonth, setSelectedMonth] = useState("");
-  const [incomeSummary, setIncomeSummary] = useState({
-    income: 0,
-    expenses: 0,
-    savings: 0,
-  });
-  const [loading, setLoading] = useState(true);
-  const { error, showError } = useError();
-
-  const loadDashboard = useCallback(async () => {
-    setLoading(true);
-    try {
-      const [catData, monthData, latest] = await Promise.all([
-        fetchExpensesByCategory(),
-        fetchExpensesByMonth(),
-        fetchLatestExpenses(),
-      ]);
-
-      const summary = await fetchIncomeSummary("all");
-
-      setCategoryData(catData);
-      setMonthlyData(monthData);
-      setLatestExpenses(latest);
-      setIncomeSummary(summary);
-    } catch (err) {
-      showError(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [showError]);
-
-  useEffect(() => {
-    loadDashboard();
-  }, [loadDashboard, refreshKey]);
 
   // ===== FILTROS =====
-
   const filteredLatestExpenses = useMemo(() => {
     if (!selectedMonth) return latestExpenses;
-    return latestExpenses.filter(
-      e => String(e.date).slice(5, 7) === selectedMonth
-    );
+    return latestExpenses.filter(e => format(parseISO(e.date), "MM") === selectedMonth);
   }, [latestExpenses, selectedMonth]);
 
   const filteredCategoryData = useMemo(() => {
@@ -73,17 +33,10 @@ export default function Dashboard({ refreshKey }) {
     return monthlyData.filter(m => m.month === selectedMonth);
   }, [monthlyData, selectedMonth]);
 
-  const totalLatest = filteredLatestExpenses.reduce(
-    (sum, e) => sum + Number(e.amount),
-    0
-  );
-
-  if (loading) return <p>Cargando dashboard...</p>;
+  const totalLatest = filteredLatestExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
 
   return (
     <div className="dashboard">
-      {error && <p className="error">{error}</p>}
-
       <section>
         <h2>Resumen</h2>
         <select
@@ -155,9 +108,7 @@ export default function Dashboard({ refreshKey }) {
                 </li>
               ))}
             </ul>
-            <p>
-              <strong>Total:</strong> {totalLatest} €
-            </p>
+            <p><strong>Total:</strong> {totalLatest} €</p>
           </>
         )}
       </section>

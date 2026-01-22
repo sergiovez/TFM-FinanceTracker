@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { fetchCategories, deleteCategory, updateCategory } from "../api";
 import { useError } from "../hooks/useError";
+import { useDashboardEvents } from "../hooks/useDashboardEvents";
 
 export default function CategoriesList({ categories, setCategories }) {
   const [editingId, setEditingId] = useState(null);
@@ -8,23 +9,18 @@ export default function CategoriesList({ categories, setCategories }) {
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(true);
   const { error, showError } = useError();
+  const { emit } = useDashboardEvents();
 
   const loadCategories = useCallback(async () => {
-    let isMounted = true;
     setLoading(true);
-
     try {
       const data = await fetchCategories();
-      if (isMounted) setCategories(data);
+      setCategories(data);
     } catch (err) {
-      if (isMounted) showError(err);
+      showError(err);
     } finally {
-      if (isMounted) setLoading(false);
+      setLoading(false);
     }
-
-    return () => {
-      isMounted = false;
-    };
   }, [setCategories, showError]);
 
   useEffect(() => {
@@ -34,12 +30,11 @@ export default function CategoriesList({ categories, setCategories }) {
   async function saveEdit(id) {
     try {
       await updateCategory(id, { name: editingName });
-      setCategories(categories.map(c =>
-        c.id === id ? { ...c, name: editingName } : c
-      ));
+      setCategories(categories.map(c => c.id === id ? { ...c, name: editingName } : c));
       setEditingId(null);
       setSuccess("Categoría actualizada");
       setTimeout(() => setSuccess(null), 2000);
+      emit("categoryChanged");
     } catch (err) {
       showError(err);
     }
@@ -52,10 +47,12 @@ export default function CategoriesList({ categories, setCategories }) {
       setCategories(categories.filter(c => c.id !== id));
       setSuccess("Categoría eliminada");
       setTimeout(() => setSuccess(null), 2000);
+      emit("categoryChanged");
     } catch (err) {
-      showError(      
+      showError(
         err?.response?.data?.detail ||
-      "No se puede eliminar la categoría porque tiene gastos asociados");
+        "No se puede eliminar la categoría porque tiene gastos asociados"
+      );
     }
   }
 
@@ -75,19 +72,14 @@ export default function CategoriesList({ categories, setCategories }) {
             <li key={c.id} className="category-item">
               {editingId === c.id ? (
                 <>
-                  <input
-                    value={editingName}
-                    onChange={e => setEditingName(e.target.value)}
-                  />
+                  <input value={editingName} onChange={e => setEditingName(e.target.value)} />
                   <button onClick={() => saveEdit(c.id)}>Guardar</button>
                   <button onClick={() => setEditingId(null)}>Cancelar</button>
                 </>
               ) : (
                 <>
                   <span>{c.name}</span>
-                  <button onClick={() => { setEditingId(c.id); setEditingName(c.name); }}>
-                    Editar
-                  </button>
+                  <button onClick={() => { setEditingId(c.id); setEditingName(c.name); }}>Editar</button>
                   <button onClick={() => handleDelete(c.id)}>Eliminar</button>
                 </>
               )}

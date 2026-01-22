@@ -1,27 +1,23 @@
 import { useEffect, useState, useCallback } from "react"; 
 import { deleteExpense, fetchExpenses } from "../api";
 import { useError } from "../hooks/useError";
+import { useDashboardEvents } from "../hooks/useDashboardEvents";
 
 export default function ExpensesList({ expenses, setExpenses }) {
   const { error, showError } = useError();
   const [loading, setLoading] = useState(true);
+  const { emit } = useDashboardEvents();
 
   const loadExpenses = useCallback(async () => {
-    let isMounted = true;
     setLoading(true);
-
     try {
       const data = await fetchExpenses();
-      if (isMounted) setExpenses(data);
+      setExpenses(data);
     } catch (err) {
-      if (isMounted) showError(err);
+      showError(err);
     } finally {
-      if (isMounted) setLoading(false);
+      setLoading(false);
     }
-
-    return () => {
-      isMounted = false;
-    };
   }, [setExpenses, showError]);
 
   useEffect(() => {
@@ -33,6 +29,7 @@ export default function ExpensesList({ expenses, setExpenses }) {
     try {
       await deleteExpense(id);
       setExpenses(expenses.filter(e => e.id !== id));
+      emit("expenseChanged");
     } catch (err) {
       showError(err);
     }

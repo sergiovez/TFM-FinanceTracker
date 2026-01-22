@@ -1,8 +1,6 @@
-import { useState } from "react";
-import "./App.css";
-
-import { AuthProvider } from "./AuthContext";
 import { useAuth } from "./useAuth";
+import { AuthProvider } from "./AuthProvider";
+import { useBootstrapData } from "./hooks/useBootstrapData";
 
 import LoginForm from "./components/LoginForm";
 import Dashboard from "./components/Dashboard";
@@ -12,12 +10,15 @@ import ExpensesForm from "./components/ExpensesForm";
 import ExpensesList from "./components/ExpensesList";
 
 function AppContent() {
-  const { user, logout, loading } = useAuth();
+  const { user, logout, loadingAuth } = useAuth();
+  const {
+    categories, setCategories,
+    expenses, setExpenses,
+    categoryData, monthlyData, latestExpenses,
+    incomeSummary, loading
+  } = useBootstrapData();
 
-  const [categories, setCategories] = useState([]);
-  const [expenses, setExpenses] = useState([]);
-
-  if (loading) return <p>Cargando...</p>;
+  if (loadingAuth || loading) return <p>Cargando...</p>;
   if (!user) return <LoginForm />;
 
   return (
@@ -31,9 +32,15 @@ function AppContent() {
       </header>
 
       <section>
-        <Dashboard 
-          expenses={expenses} 
-          categories={categories} 
+        <Dashboard
+          categories={categories}
+          expenses={expenses}
+          categoryData={categoryData}
+          monthlyData={monthlyData}
+          latestExpenses={latestExpenses}
+          incomeSummary={incomeSummary}
+          setCategories={setCategories}
+          setExpenses={setExpenses}
         />
       </section>
 
@@ -41,28 +48,16 @@ function AppContent() {
 
       <section>
         <h2>Categorías</h2>
-        <CategoriesForm
-          // CAMBIO B3: callback para agregar directamente la nueva categoría
-          onAddCategory={(newCategory) => setCategories([...categories, newCategory])}
-        />
-        <CategoriesList
-          categories={categories}
-          setCategories={setCategories} // CAMBIO B3: pasamos setCategories para borrar/editar
-        />
+        <CategoriesForm onAddCategory={newCategory => setCategories([...categories, newCategory])} />
+        <CategoriesList categories={categories} setCategories={setCategories} />
       </section>
 
       <hr />
 
       <section>
         <h2>Gastos</h2>
-        <ExpensesForm
-          categories={categories} // CAMBIO B3: recibimos categorías ya cargadas
-          onAddExpense={(newExpense) => setExpenses([...expenses, newExpense])} 
-        />
-        <ExpensesList
-          expenses={expenses}
-          setExpenses={setExpenses} // CAMBIO B3: actualizar el estado directamente
-        />
+        <ExpensesForm categories={categories} onAddExpense={newExpense => setExpenses([...expenses, newExpense])} />
+        <ExpensesList expenses={expenses} setExpenses={setExpenses} />
       </section>
     </div>
   );
