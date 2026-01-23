@@ -1,13 +1,20 @@
+# Importa la clase base para tests de Django
 from django.test import TestCase
+# Cliente HTTP de prueba
 from rest_framework.test import APIClient
+# Devuelve el CustomUser no el User por defecto
 from django.contrib.auth import get_user_model
+# Importa los modelos de gastos y categorías de la app expenses
 from expenses.models import Expense, Category
+# Para validar fechas
 from datetime import date
 
+# Obtenemos el modelo de usuario configurado en el proyecto
 User = get_user_model()
 
 # ------------------------ Tests del Dashboard ------------------------
 class DashboardAPITestCase(TestCase):
+    # Este método se ejecuta antes de cada test
     def setUp(self):
         # Usuarios
         self.usertest1 = User.objects.create_user(username='usertest1', password='testpassword123')
@@ -35,9 +42,10 @@ class DashboardAPITestCase(TestCase):
         
         # Cliente API
         self.client = APIClient()
-
+        # Autenticamos al usuario principal para todas las pruebas
         self.client.login(username='usertest1', password='testpassword123')
 
+    # Comprueba que el endpoint agrupa correctamente los gastos por categoría.
     def test_expenses_by_category(self):
         response = self.client.get('/api/dashboard/expenses-by-category/')
         self.assertEqual(response.status_code, 200)
@@ -45,6 +53,7 @@ class DashboardAPITestCase(TestCase):
         self.assertEqual(data[0]['category'], 'Comida')
         self.assertEqual(data[0]['total'], 80)
 
+    # Comprueba que el endpoint devuelve gastos agrupados por mes.
     def test_expenses_by_month(self):
         response = self.client.get('/api/dashboard/expenses-by-month/')
         self.assertEqual(response.status_code, 200)
@@ -53,6 +62,7 @@ class DashboardAPITestCase(TestCase):
         self.assertIn('total', data[0])
         self.assertIn('month', data[0])
 
+    # Comprueba que se devuelven los últimos gastos del usuario.
     def test_latest_expenses(self):
         response = self.client.get('/api/dashboard/latest-expenses/')
         self.assertEqual(response.status_code, 200)
@@ -60,9 +70,11 @@ class DashboardAPITestCase(TestCase):
         self.assertEqual(len(data), 3)
         self.assertEqual(data[0]['amount'], 50)
 
+    # Comprueba que el endpoint devuelve un archivo Excel.
     def test_export_expenses_excel(self):
         response = self.client.get('/api/dashboard/export/excel/')
         self.assertEqual(response.status_code, 200)
+        # Verificamos que el navegador lo trate como descarga
         self.assertEqual(
             response['Content-Disposition'],
             'attachment; filename=expenses.xlsx'

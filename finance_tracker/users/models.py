@@ -1,8 +1,11 @@
+# Importamos el modelo base de usuario que trae Django
+# AbstractUser incluye username, password, email, permisos, etc.
 from django.contrib.auth.models import AbstractUser
+# Importamos el sistema de modelos de Django
 from django.db import models
 
+# Modelo de usuario extendido.
 class CustomUser(AbstractUser):
-    # Modelo de usuario extendido.
     # monthly_income: ingreso mensual opcional del usuario, usado para análisis
     monthly_income = models.DecimalField(
         max_digits=10, decimal_places=2, 

@@ -1,9 +1,13 @@
+# Clase base de Django, se limpia automaticamente al terminar
 from django.test import TestCase
+# Devuelve el CustomUser no el User por defecto
 from django.contrib.auth import get_user_model
+# Cliente HTTP de prueba
 from rest_framework.test import APIClient
 
 User = get_user_model()
 
+# Test de usuarios
 class UsersAPITest(TestCase):
     def setUp(self):
         self.client = APIClient()

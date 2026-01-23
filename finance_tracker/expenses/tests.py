@@ -1,7 +1,12 @@
+# Clase base de Django, se limpia automaticamente al terminar
 from django.test import TestCase
+# Cliente HTTP de prueba
 from rest_framework.test import APIClient
+# Devuelve el CustomUser no el User por defecto
 from django.contrib.auth import get_user_model
+# Importamos los modelos de la app
 from .models import Category, Expense
+# Para validar fechas
 from datetime import date, timedelta
 
 User = get_user_model()

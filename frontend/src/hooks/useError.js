@@ -1,3 +1,4 @@
+// Gestion de errores
 import { useState, useCallback } from "react";
 
 export function useError() {

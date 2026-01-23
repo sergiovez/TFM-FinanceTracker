@@ -1,18 +1,25 @@
-const API_BASE = import.meta.env.VITE_API_URL; // URL del backend
+// URL base del backend tomada desde variables de entorno de Vite
+const API_BASE = import.meta.env.VITE_API_URL; 
 
-// Obtiene el token CSRF de las cookies
+// Obtiene el token CSRF de las cookies del navegador
 export function getCSRFToken() {
-  const name = "csrftoken=";
-  const cookies = document.cookie.split(";");
+  const name = "csrftoken="; // Nombre de la cookie CSRF
+  const cookies = document.cookie.split(";"); // Separamos todas las cookies
+  // Recorremos las cookies buscando la que empieza por "csrftoken="
   for (let cookie of cookies) {
     cookie = cookie.trim();
     if (cookie.startsWith(name)) return cookie.substring(name.length);
   }
+  // Si no se encuentra, devolvemos string vacío
   return "";
 }
 
 // Fetch genérico que añade CSRF y maneja errores
+// - Incluye cookies de sesión 
+// - Añade CSRF automáticamente
+// - Centraliza manejo de errores
 async function fetchWithSession(url, options = {}) {
+  // Configuración base del fetch
   const opts = {
     credentials: "include",
     headers: {
@@ -22,15 +29,17 @@ async function fetchWithSession(url, options = {}) {
     ...options,
   };
 
+  // Si el método modifica datos, añadimos el token CSRF
   if (["POST", "PUT", "PATCH", "DELETE"].includes(opts.method?.toUpperCase())) {
     opts.headers["X-CSRFToken"] = getCSRFToken();
   }
 
+  // Ejecutamos la petición HTTP
   const res = await fetch(url, opts);
 
   // Manejo de errores de manera centralizada
   if (!res.ok) {
-    let errorMessage = `HTTP ${res.status}`;
+    let errorMessage = `HTTP ${res.status}`; // Mensaje genérico inicial
     try {
       const data = await res.json();
 

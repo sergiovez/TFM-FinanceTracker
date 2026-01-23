@@ -1,4 +1,6 @@
+# Importa la función path para definir rutas URL en Django
 from django.urls import path
+# Importamos las vistas de autenticación desde el archivo views_auth.py
 from .views_auth import csrf, login_api, logout_api, me_api
 
 urlpatterns = [

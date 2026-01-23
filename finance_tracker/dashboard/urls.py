@@ -1,4 +1,6 @@
+# Importa la función path para definir rutas
 from django.urls import path
+# Importamos todas las vistas del dashboard
 from .views import (
     ExpensesByCategoryAPIView,
     ExpensesByMonthAPIView,

@@ -1,3 +1,7 @@
+// Hooks básicos de React
+// useState → guardar datos
+// useEffect → ejecutar al montar
+// useCallback → evitar recrear funciones
 import { useState, useEffect, useCallback } from "react";
 import {
   fetchExpensesByCategory,
@@ -7,8 +11,10 @@ import {
   fetchExpenses,
   fetchCategories
 } from "../api";
+// Hook personalizado para gestión de errores
 import { useError } from "../hooks/useError";
 
+// Crea todos los esyados iniciales vacios de dashboard
 export function useBootstrapData() {
   const [categories, setCategories] = useState([]);
   const [expenses, setExpenses] = useState([]);
@@ -19,10 +25,10 @@ export function useBootstrapData() {
   const [loading, setLoading] = useState(true);
   const { error, showError } = useError();
 
-  // Carga inicial de todos los datos de dashboard
   const load = useCallback(async () => {
     setLoading(true);
     try {
+      // Obtiene JSON con los datos
       const [cats, exps, catData, monthData, latest, summary] = await Promise.all([
         fetchCategories(),
         fetchExpenses(),
@@ -31,6 +37,7 @@ export function useBootstrapData() {
         fetchLatestExpenses(),
         fetchIncomeSummary("all")
       ]);
+      // Guarda los datos en el estado
       setCategories(cats);
       setExpenses(exps);
       setCategoryData(catData);
@@ -44,8 +51,10 @@ export function useBootstrapData() {
     }
   }, [showError]);
 
+  // Arranca todo el dashboard
   useEffect(() => { load(); }, [load]);
 
+  // Store del dashboard
   return {
     categories, setCategories,
     expenses, setExpenses,
@@ -55,6 +64,6 @@ export function useBootstrapData() {
     incomeSummary,
     loading,
     error,
-    reload: load
+    reload: load // Refresca todo
   };
 }

@@ -1,8 +1,11 @@
+// Importa la configuración base recomendada de ESLint para JavaScript
 import js from '@eslint/js'
+// Importa una lista de variables globales comunes (window, document, etc.)
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
+
 
 export default defineConfig([
   globalIgnores(['dist', '**/*.css', '**/*.svg']),

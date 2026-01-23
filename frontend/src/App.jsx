@@ -1,8 +1,11 @@
-import { useAuth } from "./auth/useAuth"; // Hook para manejar autenticacion
-import { AuthProvider } from "./auth/AuthProvider"; // Provees cotexto de auth
-import { useBootstrapData } from "./hooks/useBootstrapData"; // Carag inicial de datos
+// Hook personalizado para acceder al estado de autenticación
+import { useAuth } from "./auth/useAuth"; 
+// Provees cotexto de auth
+import { AuthProvider } from "./auth/AuthProvider"; 
+// Carag inicial de datos del dashboard
+import { useBootstrapData } from "./hooks/useBootstrapData"; 
 
-// Componentes de dashboard y formularios
+// Componentes principales de la aplicación
 import LoginForm from "./components/LoginForm";
 import Dashboard from "./components/Dashboard";
 import CategoriesForm from "./components/CategoriesForm";
@@ -10,9 +13,14 @@ import CategoriesList from "./components/CategoriesList";
 import ExpensesForm from "./components/ExpensesForm";
 import ExpensesList from "./components/ExpensesList";
 
+// ------------------------------------------------------------
+// App
+// ------------------------------------------------------------
 function AppContent() {
-  const { user, logout, loadingAuth } = useAuth(); // Datos de usuario
-  // Datos inicials de bootstrap
+  // Obtenemos usuario, logout y estado de carga de auth
+  const { user, logout, loadingAuth } = useAuth(); 
+
+  // Carga inicial de todos los datos del dashboard
   const {
     categories, setCategories,
     expenses, setExpenses,
@@ -38,7 +46,7 @@ function AppContent() {
         </div>
       </header>
 
-      {/* Dashboard principal */}
+      {/* Dashboard */}
       <section>
         <Dashboard
           categories={categories}

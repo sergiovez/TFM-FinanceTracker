@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from django.utils.html import escape
+# Para validar fechas
 from datetime import date
+# Importamos los modelos de la app
 from .models import Category, Expense
 
 # ------------------------ Serializador de Categorias ------------------------
@@ -10,18 +12,21 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
         read_only_fields = ['id']
 
-    # Evita duplicados de categoria para un usuario
     def validate_name(self, value):
+        # Limpia HTML malicioso
         value = escape(value)
+        # Obtenemos el request desde el contexto
         request = self.context.get('request')
         user = request.user if request else None
 
+        # Evita categorías duplicadas por usuario
         if user and Category.objects.filter(name=value, user=user).exists():
             raise serializers.ValidationError("Ya existe una categoría con este nombre.")
         return value
 
 # ------------------------ Serializador de Gastos ------------------------
 class ExpenseSerializer(serializers.ModelSerializer):
+    # Permite devolver el nombre de la categoría directamente
     category_name = serializers.CharField(source='category.name', read_only=True)
 
     class Meta:
@@ -41,6 +46,7 @@ class ExpenseSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("No puede ser una fecha futura.")
         return value
     
+    # Limpia descripción
     def validate_description(self, value):
         return escape(value)
 

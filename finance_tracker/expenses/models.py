@@ -1,4 +1,6 @@
+# Importamos el sistema de modelos de Django
 from django.db import models
+# Importa tu modelo de usuario personalizado
 from users.models import CustomUser
 
 # Modelo de categoria

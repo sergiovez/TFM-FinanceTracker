@@ -1,13 +1,17 @@
+// Hook para manejar estado en React
 import { useState } from "react";
+// API para crear gastos
 import { createExpense } from "../api";
+// Hook de errores
 import { useError } from "../hooks/useError";
 
+// Formulario de gastos
 export default function ExpensesForm({ categories, onAddExpense }) {
-  const [amount, setAmount] = useState("");
-  const [category, setCategory] = useState("");
-  const [date, setDate] = useState("");
-  const [success, setSuccess] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [amount, setAmount] = useState(""); // Importe
+  const [category, setCategory] = useState(""); // Categoría seleccionada
+  const [date, setDate] = useState(""); // Fecha del gasto
+  const [success, setSuccess] = useState(null); // Mensaje de éxito
+  const [submitting, setSubmitting] = useState(false); // Carga
   const { error, showError } = useError();
 
   async function handleSubmit(e) {
@@ -19,6 +23,7 @@ export default function ExpensesForm({ categories, onAddExpense }) {
     setSubmitting(true);
 
     try {
+      // Llamada a la API para crear gasto
       const newExpense = await createExpense({
         amount: Number(amount),
         category: Number(category),
@@ -27,6 +32,7 @@ export default function ExpensesForm({ categories, onAddExpense }) {
 
       onAddExpense(newExpense);
 
+      // Limpiamos campos
       setAmount("");
       setCategory("");
       setDate("");
@@ -42,10 +48,12 @@ export default function ExpensesForm({ categories, onAddExpense }) {
   return (
     <form onSubmit={handleSubmit}>
       <h2>Nuevo gasto</h2>
+      {/* Mensaje de error si existe */}
       {error && <p className="error">{error}</p>}
       {success && <p className="success">{success}</p>}
 
       <div className="expense-form">
+        {/* Importe del gasto */}
         <input
           type="number"
           step="0.01"
@@ -53,13 +61,16 @@ export default function ExpensesForm({ categories, onAddExpense }) {
           onChange={e => setAmount(e.target.value)}
           placeholder="Importe"
         />
+        {/* Categoria del gasto */}
         <select value={category} onChange={e => setCategory(e.target.value)}>
           <option value="">-- Selecciona categoría --</option>
           {categories.map(c => (
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
+        {/* Fecha del gasto */}
         <input type="date" value={date} onChange={e => setDate(e.target.value)} />
+        {/* Botón de envío */}
         <button type="submit" disabled={submitting}>
           {submitting ? "Añadiendo..." : "Añadir gasto"}
         </button>

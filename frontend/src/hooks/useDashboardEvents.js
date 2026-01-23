@@ -7,7 +7,9 @@ export function useDashboardEvents() {
   };
 
   const on = (event, fn) => {
+    // Si el evento no existe lo crea
     listeners[event] = listeners[event] || [];
+    // Añade el listener
     listeners[event].push(fn);
     return () => {
       listeners[event] = listeners[event].filter(f => f !== fn);
