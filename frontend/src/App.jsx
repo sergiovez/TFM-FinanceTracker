@@ -4,6 +4,8 @@ import { useAuth } from "./auth/useAuth";
 import { AuthProvider } from "./auth/AuthProvider"; 
 // Carag inicial de datos del dashboard
 import { useBootstrapData } from "./hooks/useBootstrapData"; 
+// Estilos
+import './App.css';
 
 // Componentes principales de la aplicación
 import LoginForm from "./components/LoginForm";

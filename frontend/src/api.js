@@ -39,25 +39,39 @@ async function fetchWithSession(url, options = {}) {
 
   // Manejo de errores de manera centralizada
   if (!res.ok) {
-    let errorMessage = `HTTP ${res.status}`; // Mensaje genérico inicial
-    try {
-      const data = await res.json();
+    let errorMessage = `HTTP ${res.status}`;
 
-      if (data.detail) errorMessage = data.detail;
-      else if (typeof data === 'object') {
+    let data;
+    try {
+      const clone = res.clone();
+
+      const contentType = clone.headers.get("content-type");
+      if (contentType?.includes("application/json")) {
+        data = await clone.json();
+      } else {
+        data = await clone.text();
+      }
+    } catch {
+      data = null;
+    }
+
+    if (data) {
+      if (typeof data === "string" && data.trim()) {
+        errorMessage = data;
+      } else if (data.detail) {
+        errorMessage = data.detail;
+      } else if (typeof data === "object") {
         const firstKey = Object.keys(data)[0];
         if (Array.isArray(data[firstKey])) errorMessage = data[firstKey][0];
         else errorMessage = data[firstKey];
       }
-    } catch {
-      const text = await res.text();
-      if (text) errorMessage = text;
     }
 
     if (res.status === 401) {
       if (typeof window.logout === "function") window.logout();
       throw new Error("No estás autenticado. Inicia sesión de nuevo.");
     }
+
     if (res.status === 403) {
       throw new Error("No tienes permisos para realizar esta acción.");
     }

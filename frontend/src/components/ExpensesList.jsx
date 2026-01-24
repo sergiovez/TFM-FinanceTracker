@@ -59,7 +59,7 @@ export default function ExpensesList({ expenses, setExpenses }) {
         {expenses.map(e => (
           <li key={e.id}>
             {e.date} - {e.category_name}: {e.amount} €
-            <button onClick={() => handleDelete(e.id)}>Eliminar</button>
+            <button className= "btn-delete" onClick={() => handleDelete(e.id)}>Eliminar</button>
           </li>
         ))}
       </ul>

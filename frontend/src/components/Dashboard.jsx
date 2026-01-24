@@ -2,7 +2,7 @@
 import { useMemo, useState } from "react";
 // Componentes de gráficas Recharts
 import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
-// Componentes de gráficas Recharts
+// Librería para formatear fechas
 import { parseISO, format } from "date-fns";
 
 // Librería para formatear fechas
@@ -37,7 +37,7 @@ export default function Dashboard({
     return categoryData.filter(c => c.month === selectedMonth);
   }, [categoryData, selectedMonth]);
 
-   // Filtramos datos de gastos mensuales
+  // Filtramos datos de gastos mensuales
   const filteredMonthlyData = useMemo(() => {
     if (!selectedMonth) return monthlyData;
     return monthlyData.filter(m => m.month === selectedMonth);
@@ -45,6 +45,31 @@ export default function Dashboard({
 
   // Calculamos total de los últimos gastos filtrados
   const totalLatest = filteredLatestExpenses.reduce((sum, e) => sum + Number(e.amount), 0);
+
+  // ===== RESUMEN DINÁMICO =====
+  // Calculamos ingresos según mes seleccionado o "Todos"
+  const income = useMemo(() => {
+    if (selectedMonth) {
+      // Si hay un mes seleccionado, el ingreso es el mensual
+      return incomeSummary.income;
+    } else {
+      // Si seleccionamos "Todos", multiplicamos por número de meses con al menos 1 gasto
+      const monthsWithExpenses = new Set(latestExpenses.map(e => format(parseISO(e.date), "MM")));
+      return incomeSummary.income * monthsWithExpenses.size;
+    }
+  }, [selectedMonth, incomeSummary.income, latestExpenses]);
+
+  // Gastos totales para resumen según mes
+  const expenses = useMemo(() => {
+    if (selectedMonth) {
+      return filteredMonthlyData.reduce((sum, m) => sum + Number(m.total), 0);
+    } else {
+      return monthlyData.reduce((sum, m) => sum + Number(m.total), 0);
+    }
+  }, [selectedMonth, filteredMonthlyData, monthlyData]);
+
+  // Ahorro calculado
+  const savings = income - expenses;
 
   return (
     <div className="dashboard">
@@ -65,9 +90,9 @@ export default function Dashboard({
         </select>
 
         <div>
-          <p>Ingresos: {incomeSummary.income} €</p>
-          <p>Gastos: {incomeSummary.expenses} €</p>
-          <p>Ahorro: {incomeSummary.savings} €</p>
+          <p>Ingresos: {income} €</p>
+          <p>Gastos: {expenses} €</p>
+          <p>Ahorro: {savings} €</p>
         </div>
       </section>
       

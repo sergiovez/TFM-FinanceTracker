@@ -96,14 +96,18 @@ export default function CategoriesList({ categories, setCategories }) {
               {editingId === c.id ? (
                 <>
                   <input value={editingName} onChange={e => setEditingName(e.target.value)} />
-                  <button onClick={() => saveEdit(c.id)}>Guardar</button>
-                  <button onClick={() => setEditingId(null)}>Cancelar</button>
+                  <div className="category-actions">
+                      <button onClick={() => saveEdit(c.id)}>Guardar</button>
+                      <button onClick={() => setEditingId(null)}>Cancelar</button>
+                  </div>
                 </>
               ) : (
                 <>
                   <span>{c.name}</span>
-                  <button onClick={() => { setEditingId(c.id); setEditingName(c.name); }}>Editar</button>
-                  <button onClick={() => handleDelete(c.id)}>Eliminar</button>
+                  <div className="category-actions">
+                      <button onClick={() => { setEditingId(c.id); setEditingName(c.name); }}>Editar</button>
+                      <button className= "btn-delete" onClick={() => handleDelete(c.id)}>Eliminar</button>
+                  </div>
                 </>
               )}
             </li>
