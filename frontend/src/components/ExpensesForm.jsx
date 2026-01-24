@@ -4,6 +4,8 @@ import { useState } from "react";
 import { createExpense } from "../api";
 // Hook de errores
 import { useError } from "../hooks/useError";
+// Hook para emitir eventos
+import { useDashboardEvents } from "../hooks/useDashboardEvents";
 
 // Formulario de gastos
 export default function ExpensesForm({ categories, onAddExpense }) {
@@ -13,6 +15,7 @@ export default function ExpensesForm({ categories, onAddExpense }) {
   const [success, setSuccess] = useState(null); // Mensaje de éxito
   const [submitting, setSubmitting] = useState(false); // Carga
   const { error, showError } = useError();
+  const { emit } = useDashboardEvents();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -31,6 +34,9 @@ export default function ExpensesForm({ categories, onAddExpense }) {
       });
 
       onAddExpense(newExpense);
+
+      // Emitimos evento global para refrescar dashboard
+      emit("expenseChanged");
 
       // Limpiamos campos
       setAmount("");

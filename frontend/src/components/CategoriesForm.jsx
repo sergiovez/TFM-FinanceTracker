@@ -45,22 +45,25 @@ export default function CategoriesForm({ onAddCategory }) {
   }
 
   return (
-    <form className="category-form" onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
+      <h2>Nueva categoria</h2>
       {/* Mostramos error si existe */}
       {error && <p className="error">{error}</p>}
       {/* Mostramos mensaje de éxito si existe */}
       {success && <p className="success">{success}</p>}
       {/* Input para escribir nombre de categoría */}
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Nombre categoría"
-      />
-      {/* Botón de envío */}
-      <button type="submit" disabled={submitting}>
-        {submitting ? "Añadiendo..." : "Añadir categoría"}
-      </button>
+      <div className="category-form">
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Nombre categoría"
+        />
+        {/* Botón de envío */}
+        <button type="submit" disabled={submitting}>
+          {submitting ? "Añadiendo..." : "Añadir categoría"}
+        </button> 
+      </div>
     </form>
   );
 }

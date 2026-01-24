@@ -10,6 +10,9 @@ from .models import Category, Expense
 from .serializers import CategorySerializer, ExpenseSerializer
 # Permiso personalizado: solo el dueño puede modificar
 from .permissions import IsOwnerOrReadOnly
+# Para devolver errores personalizados
+from rest_framework.response import Response
+from rest_framework import status
 
 # ------------------------ Vistas de Categorias ------------------------
 class CategoryListCreateAPIView(generics.ListCreateAPIView):
@@ -37,6 +40,39 @@ class CategoryRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView
     # DELETE: Elimina categoría
     def get_queryset(self):
         return Category.objects.all()
+
+    # Bloqueamos edición y borrado de categorías globales
+    def update(self, request, *args, **kwargs):
+        category = self.get_object()
+
+        if category.user is None:
+            return Response(
+                {"detail": "No se pueden modificar categorías globales"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        return super().update(request, *args, **kwargs)
+
+    # Sobrescribimos el borrado para evitar eliminar categorías con gastos
+    # y también categorías globales
+    def destroy(self, request, *args, **kwargs):
+        category = self.get_object()
+
+        # Bloqueamos eliminación de categorías globales
+        if category.user is None:
+            return Response(
+                {"detail": "No se pueden eliminar categorías globales"},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Comprobamos si existen gastos asociados a esta categoría
+        if Expense.objects.filter(category=category).exists():
+            return Response(
+                {"detail": "No se puede eliminar la categoría porque tiene gastos asociados"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        return super().destroy(request, *args, **kwargs)
 
 # ------------------------ Vistas de Gastos ------------------------
 class ExpenseListCreateAPIView(generics.ListCreateAPIView):

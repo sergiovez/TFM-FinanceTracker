@@ -7,10 +7,18 @@ from .models import Category, Expense
 
 # ------------------------ Serializador de Categorias ------------------------
 class CategorySerializer(serializers.ModelSerializer):
+    # Campo extra para indicar si la categoría es global (sin usuario)
+    is_global = serializers.SerializerMethodField()
+
     class Meta:
         model = Category
-        fields = ['id', 'name']
-        read_only_fields = ['id']
+        # Incluimos el nuevo campo is_global
+        fields = ['id', 'name', 'is_global']
+        read_only_fields = ['id', 'is_global']
+
+    def get_is_global(self, obj):
+        # Devuelve True si la categoría no tiene usuario
+        return obj.user is None
 
     def validate_name(self, value):
         # Limpia HTML malicioso

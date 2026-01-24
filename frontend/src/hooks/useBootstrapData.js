@@ -13,6 +13,8 @@ import {
 } from "../api";
 // Hook personalizado para gestión de errores
 import { useError } from "../hooks/useError";
+// Hook para escuchar eventos globales del dashboard
+import { useDashboardEvents } from "../hooks/useDashboardEvents";
 
 // Crea todos los esyados iniciales vacios de dashboard
 export function useBootstrapData() {
@@ -24,6 +26,9 @@ export function useBootstrapData() {
   const [incomeSummary, setIncomeSummary] = useState({ income: 0, expenses: 0, savings: 0 });
   const [loading, setLoading] = useState(true);
   const { error, showError } = useError();
+
+  // Hook de eventos del dashboard
+  const { on } = useDashboardEvents();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -53,6 +58,18 @@ export function useBootstrapData() {
 
   // Arranca todo el dashboard
   useEffect(() => { load(); }, [load]);
+
+  // Escucha cambios en gastos y categorías y recarga el dashboard
+  useEffect(() => {
+    const offExpense = on("expenseChanged", load);
+    const offCategory = on("categoryChanged", load);
+
+    // Limpieza de listeners al desmontar
+    return () => {
+      offExpense();
+      offCategory();
+    };
+  }, [on, load]);
 
   // Store del dashboard
   return {

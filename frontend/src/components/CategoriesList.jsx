@@ -46,7 +46,11 @@ export default function CategoriesList({ categories, setCategories }) {
       // Llamada API para actualizar categoría
       await updateCategory(id, { name: editingName });
       // Actualizamos estado de categorías localmente
-      setCategories(categories.map(c => c.id === id ? { ...c, name: editingName } : c));
+      setCategories(
+        categories.map(c =>
+          c.id === id ? { ...c, name: editingName } : c
+        )
+      );
       setEditingId(null);
       setSuccess("Categoría actualizada");
       setTimeout(() => setSuccess(null), 2000);
@@ -71,7 +75,7 @@ export default function CategoriesList({ categories, setCategories }) {
     } catch (err) {
       showError(
         err?.response?.data?.detail ||
-        "No se puede eliminar la categoría porque tiene gastos asociados"
+          "No se puede eliminar la categoría"
       );
     }
   }
@@ -91,27 +95,62 @@ export default function CategoriesList({ categories, setCategories }) {
         <p>No hay categorías.</p>
       ) : (
         <ul>
-          {categories.map(c => (
-            <li key={c.id} className="category-item">
-              {editingId === c.id ? (
-                <>
-                  <input value={editingName} onChange={e => setEditingName(e.target.value)} />
-                  <div className="category-actions">
-                      <button onClick={() => saveEdit(c.id)}>Guardar</button>
-                      <button onClick={() => setEditingId(null)}>Cancelar</button>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <span>{c.name}</span>
-                  <div className="category-actions">
-                      <button onClick={() => { setEditingId(c.id); setEditingName(c.name); }}>Editar</button>
-                      <button className= "btn-delete" onClick={() => handleDelete(c.id)}>Eliminar</button>
-                  </div>
-                </>
-              )}
-            </li>
-          ))}
+          {categories.map(c => {
+            // Una categoría es global si no tiene usuario
+            const isGlobal = c.is_global;
+
+            return (
+              <li key={c.id} className="category-item">
+                {editingId === c.id ? (
+                  <>
+                    <input
+                      value={editingName}
+                      onChange={e => setEditingName(e.target.value)}
+                      disabled={isGlobal}
+                    />
+                    {!isGlobal && (
+                      <div className="category-actions">
+                        <button onClick={() => saveEdit(c.id)}>
+                          Guardar
+                        </button>
+                        <button
+                          className="btn-delete"
+                          onClick={() => setEditingId(null)}
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <span>
+                      {c.name}
+                      {isGlobal && " (global)"}
+                    </span>
+                    {!isGlobal && (
+                      <div className="category-actions">
+                        <button
+                          onClick={() => {
+                            setEditingId(c.id);
+                            setEditingName(c.name);
+                          }}
+                        >
+                          Editar
+                        </button>
+                        <button
+                          className="btn-delete"
+                          onClick={() => handleDelete(c.id)}
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
     </div>
