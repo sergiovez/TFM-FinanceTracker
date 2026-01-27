@@ -5,6 +5,8 @@ import { createCategory } from "../api";
 // Importamos hook personalizado para manejo de errores
 import { useError } from "../hooks/useError";
 
+import "./CategoriesForm.css";
+
 // Componente para crear nueva categoria
 export default function CategoriesForm() {
   // Estado para almacenar nombre de la categoria

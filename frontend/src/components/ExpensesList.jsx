@@ -7,6 +7,8 @@ import { useError } from "../hooks/useError";
 // Hook para emitir eventos entre componentes del dashboard
 import { useDashboardEvents } from "../hooks/useDashboardEvents";
 
+import "./ExpensesList.css";
+
 // Lista de gastos
 export default function ExpensesList() {
   // Hook de errores
@@ -53,7 +55,7 @@ export default function ExpensesList() {
   if (!expenses.length) return <p>No hay gastos.</p>;
 
   return (
-    <div>
+    <div className="expenses-list">
       {error && <p className="error">{error}</p>}
       <h2>Mis gastos</h2>
       <ul>

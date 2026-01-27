@@ -1,5 +1,6 @@
 // Hero corporativo de la home pública
 import Hero from "../components/Hero";
+import "./Home.css";
 
 // Home pública (visible siempre, logueado o no)
 export default function Home() {

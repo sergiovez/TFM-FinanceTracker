@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../auth/useAuth";
+import "./Hero.css";
 
 // Hero principal de la Home pública
 export default function Hero() {
@@ -20,7 +21,7 @@ export default function Hero() {
         </Link>
       )}
 
-      {/* Si está logueado (opcional, lo dejamos preparado) */}
+      {/* Si está logueado */}
       {user && (
         <Link to="/summary" className="cta secondary">
           Ir al resumen

@@ -7,6 +7,8 @@ import { useError } from "../hooks/useError";
 // Hook para emitir eventos
 import { useDashboardEvents } from "../hooks/useDashboardEvents";
 
+import "./ExpensesForm.css";
+
 // Formulario de gastos
 export default function ExpensesForm() {
   const [amount, setAmount] = useState(""); // Importe

@@ -1,0 +1,32 @@
+.expenses-list {
+  max-width: 600px;
+  margin: 2rem auto;
+}
+
+.expenses-list h2 {
+  margin-bottom: 1rem;
+}
+
+.expenses-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.expenses-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+}
+
+.btn-delete {
+  background: #dc2626;
+  color: white;
+  border: none;
+  padding: 0.4rem 0.7rem;
+  border-radius: 4px;
+  cursor: pointer;
+}

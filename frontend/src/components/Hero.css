@@ -1,0 +1,39 @@
+.hero {
+  padding: 6rem 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, #0f172a, #020617);
+  color: white;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  font-size: 1.2rem;
+  opacity: 0.85;
+  margin-bottom: 2rem;
+}
+
+.cta {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  background: #38bdf8;
+  color: #020617;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.cta:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+.cta.secondary {
+  background: transparent;
+  color: #38bdf8;
+  border: 1px solid #38bdf8;
+}

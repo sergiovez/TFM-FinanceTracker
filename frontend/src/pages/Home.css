@@ -1,0 +1,21 @@
+.home {
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+}
+
+.home-info {
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.home-info h2 {
+  margin-bottom: 1rem;
+}
+
+.home-info p {
+  color: #666;
+  line-height: 1.6;
+}
+

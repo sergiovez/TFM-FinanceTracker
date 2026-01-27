@@ -7,6 +7,8 @@ import { useError } from "../hooks/useError";
 // Hook para emitir y escuchar eventos globales del dashboard
 import { useDashboardEvents } from "../hooks/useDashboardEvents";
 
+import "./CategoriesList.css";
+
 // Componente para listar categorias
 export default function CategoriesList() {
   // Estado de categorías
@@ -82,7 +84,7 @@ export default function CategoriesList() {
   if (loading) return <p>Cargando categorías...</p>;
 
   return (
-    <div>
+    <div className="categories-list">
       <h2>Mis categorías</h2>
       {/* Mensajes de error y éxito */}
       {error && <p className="error">{error}</p>}

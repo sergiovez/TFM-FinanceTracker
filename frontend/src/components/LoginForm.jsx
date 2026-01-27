@@ -4,32 +4,32 @@ import { useState } from "react";
 import { useAuth } from "../auth/useAuth";
 // Hook personalizado para manejar errores temporales
 import { useError } from "../hooks/useError";
+// Hook para navegar en React Router
+import { useNavigate } from "react-router-dom";
 
-// Formulario de login
+import "./LoginForm.css";
+
 export default function LoginForm() {
-  // Extraemos la función login del contexto de Auth
   const { login } = useAuth();
-  // Estado para almacenar username y password
+  const navigate = useNavigate(); // <-- Hook para redirigir
+
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  // Estado para controlar si el formulario se está enviando
   const [submitting, setSubmitting] = useState(false);
-  // Hook para manejar errores
+
   const { error, showError } = useError();
 
-  // Función que se ejecuta al enviar el formulario
   async function handleSubmit(e) {
-    // Evita recargar la página
     e.preventDefault();
-    // Evita recargar la página
     setSubmitting(true);
 
     try {
-      // Llamamos a login con username y password
       await login(username, password);
-      // Limpiamos los campos si login correcto
       setUsername("");
       setPassword("");
+
+      // Redirigimos a la página de resumen tras login
+      navigate("/summary");
     } catch (err) {
       showError(err);
     } finally {
@@ -38,17 +38,31 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="login-form">
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        {/* Mensaje de error si existe */}
+    <div className="login-container">
+      <form className="login-form" onSubmit={handleSubmit}>
+        <h2>Iniciar sesión</h2>
+
         {error && <p className="error">{error}</p>}
-        {/* Input de usuario */}
-        <input type="text" value={username} onChange={e => setUsername(e.target.value)} placeholder="Usuario" required />
-        {/* Input de contraseña */}
-        <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Contraseña" required />
-        {/* Botón de envío */}
-        <button type="submit" disabled={submitting}>{submitting ? "Entrando..." : "Entrar"}</button>
+
+        <input
+          type="text"
+          placeholder="Usuario"
+          value={username}
+          onChange={e => setUsername(e.target.value)}
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Contraseña"
+          value={password}
+          onChange={e => setPassword(e.target.value)}
+          required
+        />
+
+        <button type="submit" disabled={submitting}>
+          {submitting ? "Entrando..." : "Entrar"}
+        </button>
       </form>
     </div>
   );
