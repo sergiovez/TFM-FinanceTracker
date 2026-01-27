@@ -8,10 +8,11 @@ import { useError } from "../hooks/useError";
 import { useDashboardEvents } from "../hooks/useDashboardEvents";
 
 // Lista de gastos
-export default function ExpensesList({ expenses, setExpenses }) {
+export default function ExpensesList() {
   // Hook de errores
   const { error, showError } = useError();
   // Estado para mostrar si se está cargando la lista
+  const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   // Hook para emitir eventos
   const { emit } = useDashboardEvents();
@@ -27,7 +28,7 @@ export default function ExpensesList({ expenses, setExpenses }) {
     } finally {
       setLoading(false);
     }
-  }, [setExpenses, showError]);
+  }, [showError]);
 
   // Cargamos gastos al montar el componente
   useEffect(() => {

@@ -24,10 +24,15 @@ export function AuthProvider({ children }) {
 
    // Función de logout (useCallback evita que se recree en cada render)
   const logout = useCallback(async () => {
-    // Llamada al backend para cerrar sesión y eliminados el usuario del estado global
-    try { await apiLogout(); } catch {} 
-    finally { setUser(null); }
+    try {
+      await apiLogout();
+    } catch (err) {
+      console.error("Error en logout:", err);
+    } finally {
+      setUser(null);
+    }
   }, []);
+
 
   // Logout desde consola (desarrollo)
   useEffect(() => {

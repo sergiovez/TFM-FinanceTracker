@@ -7,19 +7,22 @@ import { useError } from "../hooks/useError";
 // Hook para emitir y escuchar eventos globales del dashboard
 import { useDashboardEvents } from "../hooks/useDashboardEvents";
 
-// Funcion para listar categorias
-export default function CategoriesList({ categories, setCategories }) {
+// Componente para listar categorias
+export default function CategoriesList() {
+  // Estado de categorías
+  const [categories, setCategories] = useState([]);
   // Estado del ID de categoría que estamos editando
   const [editingId, setEditingId] = useState(null);
   // Estado del nombre temporal mientras editamos
   const [editingName, setEditingName] = useState("");
   // Estado para mostrar mensaje de éxito
   const [success, setSuccess] = useState(null);
-  // Estado para mostrar mensaje de éxito
+  // Estado para mostrar si se está cargando
   const [loading, setLoading] = useState(true);
+
   // Hook para errores
   const { error, showError } = useError();
-
+  // Hook para eventos del dashboard
   const { emit } = useDashboardEvents();
 
   // Función para cargar categorías desde API
@@ -33,7 +36,7 @@ export default function CategoriesList({ categories, setCategories }) {
     } finally {
       setLoading(false);
     }
-  }, [setCategories, showError]);
+  }, [showError]);
 
   // Efecto para cargar categorías al montar el componente
   useEffect(() => {
@@ -43,9 +46,7 @@ export default function CategoriesList({ categories, setCategories }) {
   // Función para guardar edición de categoría
   async function saveEdit(id) {
     try {
-      // Llamada API para actualizar categoría
       await updateCategory(id, { name: editingName });
-      // Actualizamos estado de categorías localmente
       setCategories(
         categories.map(c =>
           c.id === id ? { ...c, name: editingName } : c
@@ -62,12 +63,9 @@ export default function CategoriesList({ categories, setCategories }) {
 
   // Función para eliminar categoría
   async function handleDelete(id) {
-    // Confirmación del usuario
     if (!window.confirm("¿Eliminar esta categoría?")) return;
     try {
-      // Llamada API para borrar categoría
       await deleteCategory(id);
-      // Actualizamos estado local eliminando categoría borrada
       setCategories(categories.filter(c => c.id !== id));
       setSuccess("Categoría eliminada");
       setTimeout(() => setSuccess(null), 2000);
@@ -96,7 +94,6 @@ export default function CategoriesList({ categories, setCategories }) {
       ) : (
         <ul>
           {categories.map(c => {
-            // Una categoría es global si no tiene usuario
             const isGlobal = c.is_global;
 
             return (
@@ -110,40 +107,18 @@ export default function CategoriesList({ categories, setCategories }) {
                     />
                     {!isGlobal && (
                       <div className="category-actions">
-                        <button onClick={() => saveEdit(c.id)}>
-                          Guardar
-                        </button>
-                        <button
-                          className="btn-delete"
-                          onClick={() => setEditingId(null)}
-                        >
-                          Cancelar
-                        </button>
+                        <button onClick={() => saveEdit(c.id)}>Guardar</button>
+                        <button className="btn-delete" onClick={() => setEditingId(null)}>Cancelar</button>
                       </div>
                     )}
                   </>
                 ) : (
                   <>
-                    <span>
-                      {c.name}
-                      {isGlobal && " (global)"}
-                    </span>
+                    <span>{c.name}{isGlobal && " (global)"}</span>
                     {!isGlobal && (
                       <div className="category-actions">
-                        <button
-                          onClick={() => {
-                            setEditingId(c.id);
-                            setEditingName(c.name);
-                          }}
-                        >
-                          Editar
-                        </button>
-                        <button
-                          className="btn-delete"
-                          onClick={() => handleDelete(c.id)}
-                        >
-                          Eliminar
-                        </button>
+                        <button onClick={() => { setEditingId(c.id); setEditingName(c.name); }}>Editar</button>
+                        <button className="btn-delete" onClick={() => handleDelete(c.id)}>Eliminar</button>
                       </div>
                     )}
                   </>
