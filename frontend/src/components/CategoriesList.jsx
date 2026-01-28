@@ -107,22 +107,42 @@ export default function CategoriesList() {
                       onChange={e => setEditingName(e.target.value)}
                       disabled={isGlobal}
                     />
-                    {!isGlobal && (
-                      <div className="category-actions">
-                        <button onClick={() => saveEdit(c.id)}>Guardar</button>
-                        <button className="btn-delete" onClick={() => setEditingId(null)}>Cancelar</button>
-                      </div>
-                    )}
+                    <div className="category-actions">
+                      <button disabled={isGlobal} onClick={() => saveEdit(c.id)}>
+                        Guardar
+                      </button>
+                      <button
+                        className="btn-delete"
+                        onClick={() => setEditingId(null)}
+                      >
+                        Cancelar
+                      </button>
+                    </div>
                   </>
                 ) : (
                   <>
-                    <span>{c.name}{isGlobal && " (global)"}</span>
-                    {!isGlobal && (
-                      <div className="category-actions">
-                        <button onClick={() => { setEditingId(c.id); setEditingName(c.name); }}>Editar</button>
-                        <button className="btn-delete" onClick={() => handleDelete(c.id)}>Eliminar</button>
-                      </div>
-                    )}
+                    {/* 🔥 AQUÍ ESTABA EL ERROR: FALTABA EL NOMBRE */}
+                    <span className="category-name">{c.name}</span>
+
+                    <div className="category-actions">
+                      <button
+                        disabled={isGlobal}
+                        onClick={() => {
+                          setEditingId(c.id);
+                          setEditingName(c.name);
+                        }}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        className="btn-delete"
+                        disabled={isGlobal}
+                        onClick={() => handleDelete(c.id)}
+                      >
+                        Eliminar
+                      </button>
+                    </div>
                   </>
                 )}
               </li>

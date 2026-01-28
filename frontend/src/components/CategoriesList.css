@@ -39,3 +39,14 @@
   background: #dc2626;
   color: white;
 }
+
+.category-actions button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed
+}
+
+.category-name {
+  flex: 1;
+  font-weight: 500;
+  color: #111;
+}

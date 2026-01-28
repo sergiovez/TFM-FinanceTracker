@@ -30,6 +30,9 @@ import LoginForm from "./components/LoginForm";
 // Estilos globales
 import "./App.css";
 
+import AvisoLegal from "./pages/AvisoLegal";
+import Profile from "./pages/Profile";
+
 // ------------------------------------------------------------
 // Ruta protegida (solo usuarios logueados)
 // ------------------------------------------------------------
@@ -110,6 +113,12 @@ export default function App() {
 
             {/* Página no encontrada */}
             <Route path="*" element={<NotFound />} />
+
+            {/* Aviso Legal */}
+            <Route path="/legal" element={<AvisoLegal />} />
+
+            {/* Profile Form */}
+            <Route path="/profile" element={<Profile />} />
 
           </Route>
 

@@ -1,4 +1,5 @@
-import { FaInstagram, FaLinkedin } from "react-icons/fa";
+import { FaGithub, FaLinkedin } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import "./Footer.css";
 
 // Footer corporativo
@@ -10,21 +11,21 @@ export default function Footer() {
         <p>© 2026 Finance Tracker</p>
 
         {/* Contacto */}
-        <p>Contacto: contacto@tudominio.com | Calle Ejemplo 123, Ciudad</p>
+        <p>Contacto: sergiovez13@gmail.com | Avenida Cesareo Alierta, Zaragoza</p>
 
         {/* Redes sociales */}
         <div className="socials">
-          <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">
-            <FaInstagram />
+          <a href="https://github.com/sergiovez" target="_blank" rel="noopener noreferrer">
+            <FaGithub />
           </a>
-          <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+          <a href="https://www.linkedin.com/in/sergio-vez/" target="_blank" rel="noopener noreferrer">
             <FaLinkedin />
           </a>
         </div>
 
         {/* Aviso Legal */}
         <p>
-          <a href="/legal">Aviso Legal</a>
+          <Link to="/legal">Aviso Legal</Link>
         </p>
       </div>
     </footer>

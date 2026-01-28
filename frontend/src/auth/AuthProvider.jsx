@@ -76,7 +76,7 @@ export function AuthProvider({ children }) {
   // Cualquier componente puede tener el usuario actual, 
   // las funciones de login y logout y la carga (evitar renders incorrectos)
   return (
-    <AuthContext.Provider value={{ user, login, logout, loadingAuth }}>
+    <AuthContext.Provider value={{ user, setUser, login, logout, loadingAuth }}>
       {children}
     </AuthContext.Provider>
   );

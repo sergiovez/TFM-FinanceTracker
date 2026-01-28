@@ -13,6 +13,9 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST, require_GET
 import json
 
+from django.views.decorators.csrf import csrf_exempt
+
+
 # Forzar envío de la cookie csrftoken
 @ensure_csrf_cookie
 @require_GET
@@ -48,12 +51,49 @@ def logout_api(request):
     return JsonResponse({"detail": "Logout correcto"})
 
 # Devuelve info del usuario logueado
-@require_GET
+@csrf_exempt
 def me_api(request):
     if not request.user.is_authenticated:
         return JsonResponse({"authenticated": False}, status=401)
 
-    return JsonResponse({
-        "authenticated": True,
-        "username": request.user.username,
-    })
+    user = request.user
+
+    # GET → devolver datos del perfil
+    if request.method == "GET":
+        return JsonResponse({
+            "authenticated": True,
+            "username": user.username,
+            "name": user.first_name,
+            "surname": user.last_name,
+            "email": user.email,
+            "monthly_income": user.monthly_income,
+        })
+
+    # POST → actualizar perfil
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({"detail": "JSON inválido"}, status=400)
+
+        # Password (opcional)
+        if data.get("password"):
+            user.set_password(data["password"])
+
+        user.first_name = data.get("name", user.first_name)
+        user.last_name = data.get("surname", user.last_name)
+        user.email = data.get("email", user.email)
+        user.monthly_income = data.get("monthly_income", user.monthly_income)
+
+        user.save()
+
+        return JsonResponse({
+            "detail": "Perfil actualizado",
+            "username": user.username,
+            "name": user.first_name,
+            "surname": user.last_name,
+            "email": user.email,
+            "monthly_income": user.monthly_income,
+        })
+
+    return JsonResponse({"detail": "Método no permitido"}, status=405)

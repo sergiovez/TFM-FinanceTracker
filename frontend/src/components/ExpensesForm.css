@@ -50,3 +50,10 @@ form h2 {
   color: #16a34a;
   margin-bottom: 0.5rem;
 }
+
+.expense-form select {
+  padding: 10px 12px;
+  font-size: 1rem;
+  line-height: 1.2;
+  height: auto;
+}

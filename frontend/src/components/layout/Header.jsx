@@ -30,7 +30,7 @@ export default function Header() {
           </>
         ) : (
           <>
-            <span className="user">{user.username}</span>
+            <Link to="/profile" className="user">{user.username}</Link>
             <button onClick={logout}>Logout</button>
           </>
         )}

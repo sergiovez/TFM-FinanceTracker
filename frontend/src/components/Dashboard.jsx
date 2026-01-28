@@ -30,12 +30,37 @@ export default function Dashboard({
     return categoryData.filter(c => c.month === selectedMonth);
   }, [categoryData, selectedMonth]);
 
+  const groupedCategoryData = useMemo(() => {
+  const map = {};
+  filteredCategoryData.forEach(item => {
+    const key = item.category;
+    if (!map[key]) {
+      map[key] = {
+        category: item.category,
+        total: Number(item.total)
+      };
+    } else {
+      map[key].total += Number(item.total);
+    }
+  });
+  return Object.values(map);
+  }, [filteredCategoryData]);
+
   const filteredMonthlyData = useMemo(() => {
     if (!selectedMonth) return monthlyData;
     return monthlyData.filter(m => m.month === selectedMonth);
   }, [monthlyData, selectedMonth]);
 
-  const income = incomeSummary.income;
+  const income = useMemo(() => {
+  if (selectedMonth) {
+    return incomeSummary.income;
+  }
+  const monthsWithExpenses = new Set(
+    (monthlyData || []).map(m => m.month)
+  );
+  return incomeSummary.income * monthsWithExpenses.size;
+  }, [selectedMonth, incomeSummary.income, monthlyData]);
+
   const expenses = filteredMonthlyData.reduce((sum, m) => sum + Number(m.total), 0);
   const savings = income - expenses;
 
@@ -72,14 +97,16 @@ export default function Dashboard({
         ) : (
           <PieChart width={320} height={240}>
             <Pie
-              data={filteredCategoryData}
+              data={groupedCategoryData}
               dataKey="total"
               nameKey="category"
               cx="50%"
               cy="50%"
               outerRadius={80}
+              labelLine
+              label={({ value }) => `${value} €`}
             >
-              {filteredCategoryData.map((_, i) => (
+              {groupedCategoryData.map((_, i) => (
                 <Cell key={i} fill={COLORS[i % COLORS.length]} />
               ))}
             </Pie>
