@@ -32,7 +32,6 @@
 }
 
 .user {
-  font-size: 0.9rem;
   color: #6b7280;
 }
 
@@ -45,13 +44,24 @@
 }
 
 .header-right button:hover {
-  background-color: #1f7fdc;
+  background-color: #1f3a5f;
+  color: white;
 }
 
 .cta {
-  background-color: #3fa9f5;
+  background-color: #1f3a5f;
   color: white;
   padding: 0.4rem 0.8rem;
   border-radius: 6px;
   font-weight: 500;
+}
+
+.logout{
+  background-color: #1f3a5f;
+  color: white;
+}
+
+.logout:hover{
+  background-color: #3fa9f5;
+  color: white;
 }

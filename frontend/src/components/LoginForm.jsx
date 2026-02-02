@@ -7,6 +7,8 @@ import { useError } from "../hooks/useError";
 // Hook para navegar en React Router
 import { useNavigate } from "react-router-dom";
 
+import { getCSRF } from "../api";
+
 import "./LoginForm.css";
 
 export default function LoginForm() {
@@ -24,6 +26,7 @@ export default function LoginForm() {
     setSubmitting(true);
 
     try {
+      await getCSRF();
       await login(username, password);
       setUsername("");
       setPassword("");

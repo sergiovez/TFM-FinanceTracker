@@ -85,6 +85,7 @@ export default function ProfileForm() {
       setUser(updatedUser);
 
       setSuccess("Perfil actualizado correctamente");
+      setTimeout(() => setSuccess(null), 2000);
 
       // Si ha cambiado la contraseña → logout recomendado
       if (form.password) {

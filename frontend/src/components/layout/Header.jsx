@@ -31,7 +31,7 @@ export default function Header() {
         ) : (
           <>
             <Link to="/profile" className="user">{user.username}</Link>
-            <button onClick={logout}>Logout</button>
+            <button onClick={logout} className="logout">Logout</button>
           </>
         )}
       </div>

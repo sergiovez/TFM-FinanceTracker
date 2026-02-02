@@ -53,8 +53,12 @@ export function AuthProvider({ children }) {
         const me = await fetchMe();
         // Si está autenticado, guardamos el usuario
         setUser(me?.authenticated ? { username: me.username } : null);
-      } catch {
-        setUser(null);
+      } catch (err){
+        if (err.message === "UNAUTHORIZED"){
+          setUser(null);
+        } else {
+          console.error(err);
+        }
       } finally {
         setLoadingAuth(false);
       }

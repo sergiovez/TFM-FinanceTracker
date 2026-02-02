@@ -68,8 +68,7 @@ async function fetchWithSession(url, options = {}) {
     }
 
     if (res.status === 401) {
-      if (typeof window.logout === "function") window.logout();
-      throw new Error("No estás autenticado. Inicia sesión de nuevo.");
+      throw new Error("UNAUTHORIZED");
     }
 
     if (res.status === 403) {

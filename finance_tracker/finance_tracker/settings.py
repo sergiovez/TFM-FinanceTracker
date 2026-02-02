@@ -27,7 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost","127.0.0.1"]
 
 # ------------------------ Apps instaladas ------------------------
 INSTALLED_APPS = [
@@ -133,9 +133,10 @@ REST_FRAMEWORK = {
 CSRF_COOKIE_SECURE = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False 
-CSRF_TRUSTED_ORIGINS = ['http://localhost:5173'] 
+CSRF_TRUSTED_ORIGINS = ["http://localhost:5173","http://172.31.13.11:5173",] 
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",  
+    "http://localhost:5173", 
+    "http://172.31.13.11:5173",
 ]
 CORS_ALLOW_CREDENTIALS = True

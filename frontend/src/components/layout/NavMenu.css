@@ -27,6 +27,11 @@
   color: #1e1e1e;
 }
 
+.dropbtn:hover{
+  background-color: #1f3a5f;
+  color: white;
+}
+
 .dropdown-content {
   position: absolute;
   top: 100%;
