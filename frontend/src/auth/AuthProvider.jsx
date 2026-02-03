@@ -38,17 +38,18 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (import.meta.env.DEV) {
       window.logout = logout;
-      return () => { delete window.logout; };
+      return () => delete window.logout;
     }
   }, [logout]);
 
 
-  // Hace que F5 no cierre sesion
+  // Inicializa sesion y CSRF
   useEffect(() => {
     async function init() {
       try {
         // Pedimos la cookie CSRF a Django
         await getCSRF();
+        console.log("Cookie CSRF inicializada:", document.cookie);
         // Preguntamos quién soy
         const me = await fetchMe();
         // Si está autenticado, guardamos el usuario
@@ -57,7 +58,7 @@ export function AuthProvider({ children }) {
         if (err.message === "UNAUTHORIZED"){
           setUser(null);
         } else {
-          console.error(err);
+          console.error("Error init AuthProvider:", err);
         }
       } finally {
         setLoadingAuth(false);

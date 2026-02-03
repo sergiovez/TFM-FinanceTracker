@@ -51,7 +51,6 @@ def logout_api(request):
     return JsonResponse({"detail": "Logout correcto"})
 
 # Devuelve info del usuario logueado
-@csrf_exempt
 def me_api(request):
     if not request.user.is_authenticated:
         return JsonResponse({"authenticated": False}, status=401)

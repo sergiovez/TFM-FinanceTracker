@@ -1,5 +1,5 @@
 // URL base del backend tomada desde variables de entorno de Vite
-const API_BASE = import.meta.env.VITE_API_URL; 
+const API_BASE = import.meta.env.VITE_API_URL || "https://127.0.0.1:8000/api"; 
 
 // Obtiene el token CSRF de las cookies del navegador
 export function getCSRFToken() {
@@ -31,7 +31,14 @@ async function fetchWithSession(url, options = {}) {
 
   // Si el método modifica datos, añadimos el token CSRF
   if (["POST", "PUT", "PATCH", "DELETE"].includes(opts.method?.toUpperCase())) {
-    opts.headers["X-CSRFToken"] = getCSRFToken();
+    const csrfToken = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith("csrftoken="))
+      ?.split("=")[1];
+
+    console.log("CSRF token:", csrfToken);
+    opts.headers["X-CSRFToken"] = csrfToken;
+    
   }
 
   // Ejecutamos la petición HTTP
@@ -39,49 +46,25 @@ async function fetchWithSession(url, options = {}) {
 
   // Manejo de errores de manera centralizada
   if (!res.ok) {
-    let errorMessage = `HTTP ${res.status}`;
-
     let data;
     try {
-      const clone = res.clone();
-
-      const contentType = clone.headers.get("content-type");
-      if (contentType?.includes("application/json")) {
-        data = await clone.json();
-      } else {
-        data = await clone.text();
-      }
+      data = await res.json();
     } catch {
       data = null;
-    }
-
-    if (data) {
-      if (typeof data === "string" && data.trim()) {
-        errorMessage = data;
-      } else if (data.detail) {
-        errorMessage = data.detail;
-      } else if (typeof data === "object") {
-        const firstKey = Object.keys(data)[0];
-        if (Array.isArray(data[firstKey])) errorMessage = data[firstKey][0];
-        else errorMessage = data[firstKey];
-      }
     }
 
     if (res.status === 401) {
       throw new Error("UNAUTHORIZED");
     }
-
     if (res.status === 403) {
       throw new Error("No tienes permisos para realizar esta acción.");
     }
 
-    throw new Error(errorMessage);
+    throw new Error(data?.detail || `HTTP ${res.status}`);
   }
 
-    const contentType = res.headers.get("content-type");
-    if (contentType?.includes("application/json")) return res.json();
-    return res;
-  }
+  return res.headers.get("content-type")?.includes("application/json") ? res.json() : res;
+}
 
 // --- Endpoints de categorías ---
 export function fetchCategories() {return fetchWithSession(`${API_BASE}/categories/`);}
