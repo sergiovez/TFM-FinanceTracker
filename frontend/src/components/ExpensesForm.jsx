@@ -13,6 +13,7 @@ import "./ExpensesForm.css";
 export default function ExpensesForm() {
   const [amount, setAmount] = useState(""); // Importe
   const [category, setCategory] = useState(""); // Categoría seleccionada
+  const [description, setDescription] = useState(""); // Descripcion
   const [date, setDate] = useState(""); // Fecha del gasto
   const [success, setSuccess] = useState(null); // Mensaje de éxito
   const [submitting, setSubmitting] = useState(false); // Estado de envío
@@ -25,7 +26,6 @@ export default function ExpensesForm() {
   // Cargar categorías al montar el componente
   useEffect(() => {
     async function loadCategories() {
-      setLoadingCategories(true);
       try {
         const data = await fetchCategories();
         setCategories(data);
@@ -45,6 +45,7 @@ export default function ExpensesForm() {
     // Validaciones
     if (amount <= 0) return showError("El importe debe ser mayor que 0");
     if (!category) return showError("Debes seleccionar una categoría");
+    if (!date) return showError("Deebes indicar una fecha");
 
     setSubmitting(true);
 
@@ -53,6 +54,7 @@ export default function ExpensesForm() {
       const newExpense = await createExpense({
         amount: Number(amount),
         category: Number(category),
+        description,
         date,
       });
 
@@ -61,8 +63,8 @@ export default function ExpensesForm() {
       // Limpiamos campos y mostramos mensaje de éxito
       setAmount("");
       setCategory("");
+      setDescription("");
       setDate("");
-      setSuccess("Gasto añadido correctamente");
       setTimeout(() => setSuccess(null), 2000);
 
       // Emitimos evento global para refrescar dashboard
@@ -103,6 +105,14 @@ export default function ExpensesForm() {
             <option key={c.id} value={c.id}>{c.name}</option>
           ))}
         </select>
+        
+        {/* Descripcion del gasto */}
+        <input
+          type="text"
+          value={description}
+          onChange={e => setDescription(e.target.value)}
+          placeholder="Descripción (opcional)"
+        />
 
         {/* Fecha del gasto */}
         <input

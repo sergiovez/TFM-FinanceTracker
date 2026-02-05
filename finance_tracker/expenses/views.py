@@ -51,7 +51,7 @@ class CategoryRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView
                 status=status.HTTP_403_FORBIDDEN
             )
 
-        return super().update(request, *args, **kwargs)
+        return super().update(request, *args, **kwargs, partial=True)
 
     # Sobrescribimos el borrado para evitar eliminar categorías con gastos
     # y también categorías globales

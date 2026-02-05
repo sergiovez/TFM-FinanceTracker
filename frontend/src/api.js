@@ -36,7 +36,6 @@ async function fetchWithSession(url, options = {}) {
       .find((row) => row.startsWith("csrftoken="))
       ?.split("=")[1];
 
-    console.log("CSRF token:", csrfToken);
     opts.headers["X-CSRFToken"] = csrfToken;
     
   }
@@ -69,13 +68,13 @@ async function fetchWithSession(url, options = {}) {
 // --- Endpoints de categorías ---
 export function fetchCategories() {return fetchWithSession(`${API_BASE}/categories/`);}
 export function createCategory(categoryData) {return fetchWithSession(`${API_BASE}/categories/`, {method: "POST",body: JSON.stringify(categoryData),});}
-export function updateCategory(id, data) {return fetchWithSession(`${API_BASE}/categories/${id}/`, {method: 'PUT',body: JSON.stringify(data),});}
+export function updateCategory(id, data) {return fetchWithSession(`${API_BASE}/categories/${id}/`, {method: 'PATCH',body: JSON.stringify(data),});}
 export function deleteCategory(id) {return fetchWithSession(`${API_BASE}/categories/${id}/`, {method: 'DELETE',});}
 
 // --- Endpoints de gastos ---
 export function fetchExpenses() {return fetchWithSession(`${API_BASE}/expenses/`);}
 export function createExpense(expenseData) {return fetchWithSession(`${API_BASE}/expenses/`, {method: "POST",body: JSON.stringify(expenseData),});}
-export function updateExpense(id, data) {return fetchWithSession(`${API_BASE}/expenses/${id}/`, {method: 'PUT',body: JSON.stringify(data),});}
+export function updateExpense(id, data) {return fetchWithSession(`${API_BASE}/expenses/${id}/`, {method: 'PATCH',body: JSON.stringify(data),});}
 export function deleteExpense(id) {return fetchWithSession(`${API_BASE}/expenses/${id}/`, {method: 'DELETE',});}
 
 // --- Dashboard ---

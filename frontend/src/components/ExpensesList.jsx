@@ -1,5 +1,5 @@
 // Hooks de React
-import { useEffect, useState, useCallback } from "react"; 
+import { useEffect, useState, useCallback } from "react";
 // API para borrar y obtener gastos
 import { deleteExpense, fetchExpenses } from "../api";
 // Hook para manejar errores
@@ -7,15 +7,18 @@ import { useError } from "../hooks/useError";
 // Hook para emitir eventos entre componentes del dashboard
 import { useDashboardEvents } from "../hooks/useDashboardEvents";
 
+import EditExpenseModal from "./EditExpensesModal";
 import "./ExpensesList.css";
 
 // Lista de gastos
 export default function ExpensesList() {
   // Hook de errores
   const { error, showError } = useError();
-  // Estado para mostrar si se está cargando la lista
   const [expenses, setExpenses] = useState([]);
+  // Estado para mostrar si se está cargando la lista
   const [loading, setLoading] = useState(true);
+  // Edicion de gasto
+  const [editingExpense, setEditingExpense] = useState(null);
   // Hook para emitir eventos
   const { emit } = useDashboardEvents();
 
@@ -31,7 +34,7 @@ export default function ExpensesList() {
       setLoading(false);
     }
   }, [showError]);
-
+  
   // Cargamos gastos al montar el componente
   useEffect(() => {
     loadExpenses();
@@ -58,14 +61,44 @@ export default function ExpensesList() {
     <div className="expenses-list">
       {error && <p className="error">{error}</p>}
       <h2>Mis gastos</h2>
-      <ul>
-        {expenses.map(e => (
-          <li key={e.id}>
-            {e.date} - {e.category_name}: {e.amount} €
-            <button className= "btn-delete" onClick={() => handleDelete(e.id)}>Eliminar</button>
-          </li>
-        ))}
-      </ul>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Categoría</th>
+            <th>Descripción</th>
+            <th>Importe (€)</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          {expenses.map(e => (
+            <tr key={e.id}>
+              <td>{e.date}</td>
+              <td>{e.category_name}</td>
+              <td>{e.description || "—"}</td>
+              <td>{e.amount}</td>
+              <td>
+                <button onClick={() => setEditingExpense(e)}>Editar</button>
+                <button
+                  className="btn-delete"
+                  onClick={() => handleDelete(e.id)}
+                >
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {editingExpense && (
+        <EditExpenseModal
+          expense={editingExpense}
+          onClose={() => setEditingExpense(null)}
+          onSaved={loadExpenses}
+        />
+      )}
     </div>
   );
 }
