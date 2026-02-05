@@ -22,7 +22,7 @@ export default defineConfig({
   },
   base: "./",
     build: {
-      outDir: 'docs', // Cambiado a 'docs' para GitHub Pages
+      outDir: '../finance_tracker/frontend_build', // Cambiado a 'docs' para GitHub Pages
       emptyOutDir: true,
       rollupOptions: {
         input: {
