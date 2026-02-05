@@ -85,7 +85,7 @@ WSGI_APPLICATION = 'finance_tracker.wsgi.application'
 
 # ------------------------ Base de datos ------------------------
 DATABASES = {
-    'default': dj_database_url.config(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")
+    'default': dj_database_url.config(default=config('DATABASE_URL'))
 }
 
 # ------------------------ Validación de passwords ------------------------
