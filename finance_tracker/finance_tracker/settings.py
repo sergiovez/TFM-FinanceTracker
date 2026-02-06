@@ -157,3 +157,12 @@ if DEBUG:
     REST_FRAMEWORK["DEFAULT_PERMISSION_CLASSES"] = [
         "rest_framework.permissions.AllowAny"
     ]
+
+# Solo producción
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True           # Cookies solo vía HTTPS
+    CSRF_COOKIE_SECURE = True              # Cookies CSRF solo vía HTTPS
+    CSRF_TRUSTED_ORIGINS = ["https://finance-tracker-s1ww.onrender.com"]
+    CORS_ALLOWED_ORIGINS = ["https://finance-tracker-s1ww.onrender.com"]
+    CSRF_COOKIE_SAMESITE = "Lax"           # o "None" si tu SPA está en otro dominio
+    SESSION_COOKIE_SAMESITE = "Lax"        # o "None"
