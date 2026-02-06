@@ -18,7 +18,6 @@ import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
@@ -29,7 +28,7 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # ALLOWED_HOSTS = ["localhost","127.0.0.1"]
-ALLOWED_HOSTS = config("ALLOWED_HOSTS").split(",")
+ALLOWED_HOSTS = config("ALLOWED_HOSTS",default="localhost,127.0.0.1",).split(",")
 
 # ------------------------ Apps instaladas ------------------------
 INSTALLED_APPS = [
@@ -69,7 +68,7 @@ ROOT_URLCONF = 'finance_tracker.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'finance_tracker' / 'frontend_build'], # Carpeta de templates del backend
+        'DIRS': [BASE_DIR / 'frontend_build'], # Carpeta de templates del backend
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -86,7 +85,7 @@ WSGI_APPLICATION = 'finance_tracker.wsgi.application'
 
 # ------------------------ Base de datos ------------------------
 DATABASES = {
-    'default': dj_database_url.config(default=config('DATABASE_URL'))
+    'default': dj_database_url.config(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",conn_max_age=600,)
 }
 
 # ------------------------ Validación de passwords ------------------------
@@ -117,7 +116,7 @@ USE_TZ = True
 # ------------------------ Archivos estáticos ------------------------
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'finance_tracker' / 'frontend_build' / 'assets']
+STATICFILES_DIRS = [BASE_DIR / 'frontend_build' / 'assets']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
@@ -148,7 +147,7 @@ CORS_ALLOW_CREDENTIALS = True
 #    "http://172.31.13.11:5173",
 #]
 
-CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS").split(",") 
+CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS",default="http://localhost,http://127.0.0.1").split(",") 
 CSRF_COOKIE_DOMAIN = None
 CSRF_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SECURE = False

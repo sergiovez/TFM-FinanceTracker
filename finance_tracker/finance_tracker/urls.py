@@ -20,11 +20,12 @@ from django.urls import path, include, re_path
 from django.views.generic import TemplateView
 
 urlpatterns = [
-    path('', include('core.urls')),   # Página principal
+    # path('', include('core.urls')),   # Página principal
     path('admin/', admin.site.urls), # Admin de Django
     path('api/', include('expenses.urls')), # CRUD de gastos y categorías
     path('api/auth/', include('users.urls_api')), # Endpoints de login, logout, csrf
     path('api/dashboard/', include('dashboard.urls')), # Reportes y exportación de gastos
     re_path(r'^.*$',TemplateView.as_view(template_name='index.html')),
+    # re_path(r'^(?!api/|admin/).*$',TemplateView.as_view(template_name='index.html')),
 ]
 
