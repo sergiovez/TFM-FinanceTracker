@@ -29,15 +29,15 @@ async function fetchWithSession(url, options = {}) {
     ...options,
   };
 
-  // Si el método modifica datos, añadimos el token CSRF
-  if (["POST", "PUT", "PATCH", "DELETE"].includes(opts.method?.toUpperCase())) {
-    const csrfToken = document.cookie
-      .split("; ")
-      .find((row) => row.startsWith("csrftoken="))
-      ?.split("=")[1];
+  const method = opts.method ? opts.method.toUpperCase() : "GET";
 
-    opts.headers["X-CSRFToken"] = csrfToken;
-    
+  // Si el método modifica datos, añadimos el token CSRF
+  if (["POST", "PUT", "PATCH", "DELETE"].includes(method)) {
+    const csrfToken = getCSRFToken();
+
+    if (csrfToken){
+      opts.headers["X-CSRFToken"] = csrfToken;
+    }
   }
 
   // Ejecutamos la petición HTTP
@@ -56,7 +56,7 @@ async function fetchWithSession(url, options = {}) {
       throw new Error("UNAUTHORIZED");
     }
     if (res.status === 403) {
-      throw new Error("No tienes permisos para realizar esta acción.");
+      throw new Error("CSRF or permission error");
     }
 
     throw new Error(data?.detail || `HTTP ${res.status}`);
@@ -84,7 +84,7 @@ export function fetchLatestExpenses() {return fetchWithSession(`${API_BASE}/dash
 export function fetchIncomeSummary(month = "all") {return fetchWithSession(`${API_BASE}/dashboard/income-summary/?month=${month}`);}
 
 // --- Auth ---
-export function getCSRF() {return fetchWithSession(`${API_BASE}/auth/csrf/`);}
+export function getCSRF() {return fetchWithSession(`${API_BASE}/auth/csrf/`, {method: "GET",});}
 export function login(username, password) {return fetchWithSession(`${API_BASE}/auth/login/`, {method: "POST",body: JSON.stringify({ username, password }),});}
 export function logout() {return fetchWithSession(`${API_BASE}/auth/logout/`, {method: "POST",});}
 export function fetchMe() {return fetchWithSession(`${API_BASE}/auth/me/`);}
