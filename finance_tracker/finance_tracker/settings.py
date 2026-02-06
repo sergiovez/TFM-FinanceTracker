@@ -14,6 +14,7 @@ from pathlib import Path
 from decouple import config
 import os
 import dj_database_url
+from django.conf import settings
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -116,7 +117,9 @@ USE_TZ = True
 # ------------------------ Archivos estáticos ------------------------
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'frontend_build' / 'assets']
+STATICFILES_DIRS = [BASE_DIR / 'frontend_build']
+
+TEMPLATES[0]['DIRS'] = [BASE_DIR / 'frontend_build']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'users.CustomUser'
@@ -134,11 +137,7 @@ REST_FRAMEWORK = {
 # ------------------------ CSRF y CORS ------------------------
 
 SESSION_COOKIE_SECURE = False
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173", 
-    "http://127.0.0.1:5173",
-    "http://172.31.13.11:5173",
-]
+CORS_ALLOWED_ORIGINS = []
 CORS_ALLOW_CREDENTIALS = True
 
 #CSRF_TRUSTED_ORIGINS = [
@@ -147,9 +146,14 @@ CORS_ALLOW_CREDENTIALS = True
 #    "http://172.31.13.11:5173",
 #]
 
-CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS",default="http://localhost,http://127.0.0.1").split(",") 
+CSRF_TRUSTED_ORIGINS = config("CSRF_TRUSTED_ORIGINS",default="http://localhost:8000,http://127.0.0.1:8000").split(",") 
 CSRF_COOKIE_DOMAIN = None
 CSRF_COOKIE_SAMESITE = "Lax"
 CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = False 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+if DEBUG:
+    REST_FRAMEWORK["DEFAULT_PERMISSION_CLASSES"] = [
+        "rest_framework.permissions.AllowAny"
+    ]

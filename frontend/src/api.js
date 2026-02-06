@@ -1,5 +1,5 @@
 // URL base del backend tomada desde variables de entorno de Vite
-const API_BASE = import.meta.env.VITE_API_URL || "https://127.0.0.1:8000/api"; 
+const API_BASE = "/api"; 
 
 // Obtiene el token CSRF de las cookies del navegador
 export function getCSRFToken() {
