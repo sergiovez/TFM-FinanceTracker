@@ -43,6 +43,8 @@ class ExpensesByMonthAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        raise Exception("ESTE ES EL VIEWS NUEVO")
+    
         qs = (
             Expense.objects
             .filter(user=request.user)
