@@ -10,6 +10,7 @@ from django.http import HttpResponse
 
 import pandas as pd
 
+print("🚨🚨🚨 ESTE ES EL VIEWS QUE ESTÁ CARGANDO DJANGO 🚨🚨🚨")
 
 # ------------------------ Gastos por categoría y mes ------------------------
 class ExpensesByCategoryAPIView(APIView):
