@@ -148,9 +148,35 @@ class IncomeSummaryAPIView(APIView):
 
 
 # ---- DEPURAR ERROR ----
-from rest_framework.decorators import api_view
-@api_view(['GET'])
-def debug_expenses(request):
-    data = list(Expense.objects.all().values('id', 'user__username', 'category__name', 'amount', 'date'))
-    return Response(data)
+# --- Devuelve todos los gastos del usuario sin filtrar ni agregar ---
+class DebugAllExpensesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        qs = Expense.objects.filter(user=request.user)
+        data = list(qs.values('id', 'category__name', 'amount', 'date'))
+        return Response(data)
+
+# --- Muestra los gastos con anotación de mes antes de agrupar ---
+class DebugAnnotatedMonthAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        qs = Expense.objects.filter(user=request.user).annotate(month=ExtractMonth('date'))
+        data = list(qs.values('id', 'category__name', 'amount', 'date', 'month'))
+        return Response(data)
+
+# --- Prueba la agregación por categoría y mes sin filtrar nada extraño ---
+class DebugGroupByCategoryMonthAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        qs = (
+            Expense.objects
+            .filter(user=request.user)
+            .annotate(month=ExtractMonth('date'))
+            .values('category__name', 'month')
+            .annotate(total=Coalesce(Sum('amount'), 0))
+            .order_by('month')
+        )
+        return Response(list(qs))
