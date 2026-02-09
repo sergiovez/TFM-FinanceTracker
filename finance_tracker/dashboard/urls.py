@@ -7,6 +7,7 @@ from .views import (
     LatestExpensesAPIView,
     IncomeSummaryAPIView,
     ExportExpensesExcelAPIView,
+    debug_expenses,
 )
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path('latest-expenses/', LatestExpensesAPIView.as_view()),
     path('income-summary/', IncomeSummaryAPIView.as_view()),
     path('export/excel/', ExportExpensesExcelAPIView.as_view()),
+    path('debug-expenses/', debug_expenses),
 ]

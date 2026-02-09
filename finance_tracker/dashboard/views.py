@@ -145,3 +145,12 @@ class IncomeSummaryAPIView(APIView):
             "expenses": float(expenses_total),
             "savings": float(income - expenses_total),
         })
+
+
+# ---- DEPURAR ERROR ----
+from rest_framework.decorators import api_view
+@api_view(['GET'])
+def debug_expenses(request):
+    data = list(Expense.objects.all().values('id', 'user__username', 'category__name', 'amount', 'date'))
+    return Response(data)
+
