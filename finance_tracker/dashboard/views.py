@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 # Funciones ORM
-from django.db.models import Sum
+from django.db.models import Sum, Value
 from django.db.models.functions import ExtractMonth, Coalesce
 
 # Modelo de gastos
@@ -18,7 +18,6 @@ from django.http import HttpResponse
 # Librería para trabajar con Excel
 import pandas as pd
 
-
 # ------------------------ Gastos por categoría y mes ------------------------
 class ExpensesByCategoryAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -27,15 +26,16 @@ class ExpensesByCategoryAPIView(APIView):
         expenses = (
             Expense.objects
             .filter(user=request.user)
-            .annotate(month=ExtractMonth('date'))  # ✅ compatible PostgreSQL
-            .values('category__name', 'month')
-            .annotate(total=Coalesce(Sum('amount'), 0))  # ✅ evita NULL
-            .order_by('month')
+            .annotate(month=ExtractMonth('date'))  
+            .annotate(category_name=Coalesce('category__name', Value('Sin categoría')))  
+            .values('category_name', 'month')
+            .annotate(total=Coalesce(Sum('amount'), 0))  
+            .order_by('month', 'category_name')
         )
 
         data = [
             {
-                'category': e['category__name'],
+                'category': e['category_name'],
                 'month': e['month'],
                 'total': float(e['total']),
             }
@@ -53,9 +53,9 @@ class ExpensesByMonthAPIView(APIView):
         expenses = (
             Expense.objects
             .filter(user=request.user)
-            .annotate(month=ExtractMonth('date'))  # ✅ compatible PostgreSQL
+            .annotate(month=ExtractMonth('date')) 
             .values('month')
-            .annotate(total=Coalesce(Sum('amount'), 0))  # ✅ evita NULL
+            .annotate(total=Coalesce(Sum('amount'), 0))  
             .order_by('month')
         )
 
@@ -76,14 +76,14 @@ class LatestExpensesAPIView(APIView):
         expenses = (
             Expense.objects
             .filter(user=request.user)
-            .select_related('category')  # ✅ optimización
+            .select_related('category') 
             .order_by('-date')[:5]
         )
 
         data = [
             {
                 'id': e.id,
-                'category': e.category.name if e.category else None,  # ✅ evita crash
+                'category': e.category.name if e.category else 'Sin categoría', 
                 'amount': float(e.amount),
                 'date': e.date,
             }
@@ -102,7 +102,7 @@ class ExportExpensesExcelAPIView(APIView):
 
         data = [
             {
-                'Category': e.category.name if e.category else '',
+                'Category': e.category.name if e.category else 'Sin categoría',
                 'Amount': float(e.amount),
                 'Date': e.date,
             }
