@@ -1,48 +1,41 @@
-# Vista base de DRF para APIs personalizadas
 from rest_framework.views import APIView
-# Respuesta estándar de DRF (JSON)
 from rest_framework.response import Response
-# Permiso para exigir autenticación
 from rest_framework.permissions import IsAuthenticated
 
-# Funciones ORM
 from django.db.models import Sum, Value
 from django.db.models.functions import ExtractMonth, Coalesce
 
-# Modelo de gastos
 from expenses.models import Expense
-
-# Respuesta HTTP clásica
 from django.http import HttpResponse
 
-# Librería para trabajar con Excel
 import pandas as pd
+
 
 # ------------------------ Gastos por categoría y mes ------------------------
 class ExpensesByCategoryAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        expenses = (
+        qs = (
             Expense.objects
             .filter(user=request.user)
-            .annotate(month=ExtractMonth('date'))  
-            .annotate(category_name=Coalesce('category__name', Value('Sin categoría')))  
+            .annotate(
+                month=ExtractMonth('date'),
+                category_name=Coalesce('category__name', Value('Sin categoría'))
+            )
             .values('category_name', 'month')
-            .annotate(total=Coalesce(Sum('amount'), 0))  
+            .annotate(total=Coalesce(Sum('amount'), 0))
             .order_by('month', 'category_name')
         )
 
-        data = [
+        return Response([
             {
-                'category': e['category_name'],
-                'month': e['month'],
-                'total': float(e['total']),
+                "category": e["category_name"],
+                "month": e["month"],
+                "total": float(e["total"]),
             }
-            for e in expenses
-        ]
-
-        return Response(data)
+            for e in qs
+        ])
 
 
 # ------------------------ Gastos por mes ------------------------
@@ -50,21 +43,21 @@ class ExpensesByMonthAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        expenses = (
+        qs = (
             Expense.objects
             .filter(user=request.user)
-            .annotate(month=ExtractMonth('date')) 
+            .annotate(month=ExtractMonth('date'))
             .values('month')
-            .annotate(total=Coalesce(Sum('amount'), 0))  
+            .annotate(total=Coalesce(Sum('amount'), 0))
             .order_by('month')
         )
 
         return Response([
             {
-                'month': e['month'],
-                'total': float(e['total']),
+                "month": e["month"],
+                "total": float(e["total"]),
             }
-            for e in expenses
+            for e in qs
         ])
 
 
@@ -73,24 +66,22 @@ class LatestExpensesAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        expenses = (
+        qs = (
             Expense.objects
             .filter(user=request.user)
-            .select_related('category') 
+            .select_related('category')
             .order_by('-date')[:5]
         )
 
-        data = [
+        return Response([
             {
-                'id': e.id,
-                'category': e.category.name if e.category else 'Sin categoría', 
-                'amount': float(e.amount),
-                'date': e.date,
+                "id": e.id,
+                "category": e.category.name if e.category else "Sin categoría",
+                "amount": float(e.amount),
+                "date": e.date,
             }
-            for e in expenses
-        ]
-
-        return Response(data)
+            for e in qs
+        ])
 
 
 # ------------------------ Exportar a Excel ------------------------
@@ -102,9 +93,9 @@ class ExportExpensesExcelAPIView(APIView):
 
         data = [
             {
-                'Category': e.category.name if e.category else 'Sin categoría',
-                'Amount': float(e.amount),
-                'Date': e.date,
+                "Category": e.category.name if e.category else "Sin categoría",
+                "Amount": float(e.amount),
+                "Date": e.date,
             }
             for e in expenses
         ]
@@ -112,12 +103,11 @@ class ExportExpensesExcelAPIView(APIView):
         df = pd.DataFrame(data)
 
         response = HttpResponse(
-            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         )
-        response['Content-Disposition'] = 'attachment; filename=expenses.xlsx'
+        response["Content-Disposition"] = "attachment; filename=expenses.xlsx"
 
         df.to_excel(response, index=False)
-
         return response
 
 
@@ -126,48 +116,39 @@ class IncomeSummaryAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user
         month = request.query_params.get("month")
 
-        expenses = Expense.objects.filter(user=user)
+        qs = Expense.objects.filter(user=request.user)
 
         if month and month != "all":
-            expenses = expenses.filter(date__month=int(month))
+            qs = qs.filter(date__month=int(month))
 
-        expenses_total = expenses.aggregate(
+        total_expenses = qs.aggregate(
             total=Coalesce(Sum("amount"), 0)
         )["total"]
 
-        income = user.monthly_income or 0
+        income = request.user.monthly_income or 0
 
         return Response({
             "income": float(income),
-            "expenses": float(expenses_total),
-            "savings": float(income - expenses_total),
+            "expenses": float(total_expenses),
+            "savings": float(income - total_expenses),
         })
 
 
-# ---- DEPURAR ERROR ----
-# --- Devuelve todos los gastos del usuario sin filtrar ni agregar ---
+# ======================== DEBUG ========================
+
 class DebugAllExpensesAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         qs = Expense.objects.filter(user=request.user)
-        data = list(qs.values('id', 'category__name', 'amount', 'date'))
-        return Response(data)
+        return Response(list(
+            qs.values('id', 'category__name', 'amount', 'date')
+        ))
 
-# --- Muestra los gastos con anotación de mes antes de agrupar ---
+
 class DebugAnnotatedMonthAPIView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request):
-        qs = Expense.objects.filter(user=request.user).annotate(month=ExtractMonth('date'))
-        data = list(qs.values('id', 'category__name', 'amount', 'date', 'month'))
-        return Response(data)
-
-# --- Prueba la agregación por categoría y mes sin filtrar nada extraño ---
-class DebugGroupByCategoryMonthAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -175,8 +156,26 @@ class DebugGroupByCategoryMonthAPIView(APIView):
             Expense.objects
             .filter(user=request.user)
             .annotate(month=ExtractMonth('date'))
-            .values('category__name', 'month')
+        )
+        return Response(list(
+            qs.values('id', 'category__name', 'amount', 'date', 'month')
+        ))
+
+
+class DebugGroupByCategoryMonthAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        qs = (
+            Expense.objects
+            .filter(user=request.user)
+            .annotate(
+                month=ExtractMonth('date'),
+                category_name=Coalesce('category__name', Value('Sin categoría'))
+            )
+            .values('category_name', 'month')
             .annotate(total=Coalesce(Sum('amount'), 0))
             .order_by('month')
         )
+
         return Response(list(qs))
