@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 from pathlib import Path
 from decouple import config
-import os
 import dj_database_url
 from django.conf import settings
 
@@ -166,3 +165,14 @@ if not DEBUG:
     CORS_ALLOWED_ORIGINS = ["https://finance-tracker-s1ww.onrender.com"]
     CSRF_COOKIE_SAMESITE = "Lax"           # o "None" si tu SPA está en otro dominio
     SESSION_COOKIE_SAMESITE = "Lax"        # o "None"
+
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.gmail.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+
+EMAIL_HOST_USER = "sergiovez13@gmail.com"
+EMAIL_HOST_PASSWORD = "sergiovez"
+
+DEFAULT_FROM_EMAIL = "Finance Tracker <sergiovez13@gmail.com>"
