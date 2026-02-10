@@ -9,6 +9,8 @@ export default function Register() {
     email: ""
   });
   const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
 
   function handleChange(e) {
     setForm({
@@ -19,14 +21,42 @@ export default function Register() {
 
   async function handleSubmit(e) {
     e.preventDefault();
+    setSubmitting(true);
+    setError(null);
 
-    await fetch("/register-request/", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form)
-    });
+    // Validación simple
+    if (!form.name || !form.surname || !form.username || !form.email) {
+      setError("Todos los campos son obligatorios");
+      setSubmitting(false);
+      return;
+    }
 
-    setSent(true);
+    if (!form.email.includes("@")) {
+      setError("Email no válido");
+      setSubmitting(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("/register-request/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form)
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.detail || "Error enviando solicitud");
+        setSubmitting(false);
+        return;
+      }
+
+      setSent(true);
+    } catch {
+      setError("Error enviando solicitud");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   if (sent) {
@@ -44,6 +74,8 @@ export default function Register() {
   return (
     <form className="register-card" onSubmit={handleSubmit}>
       <h2>Solicitar acceso</h2>
+
+      {error && <p className="error">{error}</p>}
 
       <div className="field">
         <span className="field-icon">👤</span>
@@ -93,7 +125,9 @@ export default function Register() {
         />
       </div>
 
-      <button type="submit">Solicitar acceso</button>
+      <button type="submit" disabled={submitting}>
+        {submitting ? <span className="spinner" /> : "Solicitar acceso"}
+      </button>
     </form>
   );
 }
