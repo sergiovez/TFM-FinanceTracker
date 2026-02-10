@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
-from django.db.models import Sum, Value
+from django.db.models import Sum, Value, DecimalField
 from django.db.models.functions import ExtractMonth, Coalesce
 from django.contrib.auth import get_user_model
 from django.http import HttpResponse
@@ -25,7 +25,7 @@ class ExpensesByCategoryAPIView(APIView):
                 category_name=Coalesce("category__name", Value("Sin categoría")),
             )
             .values("category_name", "month")
-            .annotate(total=Coalesce(Sum("amount"), Value(0.0)))
+            .annotate(total=Coalesce(Sum("amount"), Value(0, output_field=DecimalField())))
             .order_by("month", "category_name")
         )
 
@@ -49,7 +49,7 @@ class ExpensesByMonthAPIView(APIView):
                 .filter(user=request.user)
                 .annotate(month=ExtractMonth("date"))
                 .values("month")
-                .annotate(total=Coalesce(Sum("amount"), Value(0.0)))
+                .annotate(total=Coalesce(Sum("amount"), Value(0, output_field=DecimalField())))
                 .order_by("month")
             )
 
@@ -128,7 +128,7 @@ class IncomeSummaryAPIView(APIView):
             qs = qs.filter(date__month=int(month))
 
         total_expenses = qs.aggregate(
-            total=Coalesce(Sum("amount"), Value(0.0))
+            total=Coalesce(Sum("amount"), Value(0, output_field=DecimalField()))
         )["total"] or 0
 
         income = request.user.monthly_income or 0
@@ -177,7 +177,7 @@ class DebugGroupByCategoryMonthAPIView(APIView):
                 category_name=Coalesce("category__name", Value("Sin categoría")),
             )
             .values("category_name", "month")
-            .annotate(total=Coalesce(Sum("amount"), Value(0.0)))
+            .annotate(total=Coalesce(Sum("amount"), Value(0, output_field=DecimalField())))
             .order_by("month")
         )
 
