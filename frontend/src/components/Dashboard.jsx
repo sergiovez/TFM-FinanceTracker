@@ -44,7 +44,7 @@ export default function Dashboard({
 
   const filteredCategoryData = useMemo(() => {
     if (!selectedMonth) return categoryData;
-    return categoryData.filter(c => c.month === selectedMonth);
+    return categoryData.filter(c => normalizeMonth(c.month) === selectedMonth);
   }, [categoryData, selectedMonth]);
 
   const groupedCategoryData = useMemo(() => {
@@ -96,7 +96,7 @@ export default function Dashboard({
             const normalized = normalizeMonth(m.month);
             return (
               <option key={m.month} value={normalized}>
-                {monthLabel[m.month]}
+                {monthLabel(m.month)}
               </option>
             );
           })}
