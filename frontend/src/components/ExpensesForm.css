@@ -35,8 +35,8 @@
 
 .amount-input {
   width: 100%;
-  padding: 1rem 1rem 1rem 3rem;
-  font-size: 2rem;
+  padding: 1rem 1.2rem 1rem 3.2rem;
+  font-size: 1.6rem;
   font-weight: 700;
   border-radius: 10px;
   border: 2px solid #2563eb;
@@ -64,10 +64,11 @@
 .field input,
 .field select {
   width: 100%;
-  padding: 0.7rem 0.7rem 0.7rem 2.4rem;
+  padding: 0.75rem 1rem 0.75rem 2.6rem;
   border-radius: 8px;
   border: 1px solid #ccc;
   font-size: 1rem;
+  appearance: none;
 }
 
 .field input:focus,

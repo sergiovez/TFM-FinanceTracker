@@ -80,13 +80,15 @@ export default function ExpensesList() {
               <td>{e.description || "—"}</td>
               <td>{e.amount}</td>
               <td>
-                <button onClick={() => setEditingExpense(e)}>Editar</button>
-                <button
-                  className="btn-delete"
-                  onClick={() => handleDelete(e.id)}
-                >
-                  Eliminar
-                </button>
+                <div className="actions">
+                  <button onClick={() => setEditingExpense(e)}>Editar</button>
+                  <button
+                    className="btn-delete"
+                    onClick={() => handleDelete(e.id)}
+                  >
+                    Eliminar
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
