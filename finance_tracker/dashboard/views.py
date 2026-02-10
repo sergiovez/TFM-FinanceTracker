@@ -121,8 +121,8 @@ class IncomeSummaryAPIView(APIView):
             qs = qs.filter(date__month=int(month))
 
         total_expenses = qs.aggregate(
-            total=Coalesce(Sum("amount"), 0)
-        )["total"]
+            total=Coalesce(Sum("amount"), Value(0.0))
+        )["total"] or 0
 
         income = request.user.monthly_income or 0
 
@@ -170,7 +170,7 @@ class DebugGroupByCategoryMonthAPIView(APIView):
                 category_name=Coalesce("category__name", Value("Sin categoría")),
             )
             .values("category_name", "month")
-            .annotate(total=Coalesce(Sum("amount"), 0))
+            .annotate(total=Coalesce(Sum("amount"), Value(0.0)))
             .order_by("month")
         )
 
