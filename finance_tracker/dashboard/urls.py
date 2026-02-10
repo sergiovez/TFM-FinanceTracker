@@ -10,6 +10,10 @@ from .views import (
     DebugAllExpensesAPIView,
     DebugAnnotatedMonthAPIView,
     DebugGroupByCategoryMonthAPIView,
+    DebugFieldTypesAPIView,
+    DebugSumTestAPIView,
+    DebugInvalidAmountsAPIView,
+    DebugSQLExpensesByMonthAPIView,
 )
 
 urlpatterns = [
@@ -20,7 +24,9 @@ urlpatterns = [
     path('export/excel/', ExportExpensesExcelAPIView.as_view()),
     path('debug/all-expenses/', DebugAllExpensesAPIView.as_view()),
     path('debug/annotated-month/', DebugAnnotatedMonthAPIView.as_view()),
-    path('debug/groupby-category-month/', DebugGroupByCategoryMonthAPIView.as_view()),  
+    path('debug/groupby-category-month/', DebugGroupByCategoryMonthAPIView.as_view()), 
+    path("debug/field-types/", DebugFieldTypesAPIView.as_view()),
+    path("debug/sum-test/", DebugSumTestAPIView.as_view()),
+    path("debug/invalid-amounts/", DebugInvalidAmountsAPIView.as_view()),
+    path("debug/sql-expenses-by-month/", DebugSQLExpensesByMonthAPIView.as_view()), 
 ]
-
-
