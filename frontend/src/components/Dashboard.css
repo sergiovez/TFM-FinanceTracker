@@ -7,29 +7,107 @@
 .dashboard-card {
   background: #ffffff;
   padding: 1.5rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
 
 .dashboard-card h2 {
   margin-bottom: 1rem;
 }
 
-.dashboard-select {
-  padding: 0.5rem;
-  margin-bottom: 1rem;
+.summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.summary-values p {
-  margin: 0.25rem 0;
+.dashboard-select {
+  padding: 0.4rem 0.6rem;
+  border-radius: 6px;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.kpi {
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.kpi span {
+  display: block;
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.kpi strong {
+  font-size: 1.5rem;
+}
+
+.kpi.positive strong {
+  color: #16a34a;
+}
+
+.kpi.negative strong {
+  color: #dc2626;
+}
+
+.chart-wrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+}
+
+.chart-center {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.chart-center span {
+  display: block;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.chart-center strong {
+  font-size: 1.2rem;
 }
 
 .expense-list {
   list-style: none;
   padding: 0;
+  margin: 0;
 }
 
 .expense-list li {
-  padding: 0.5rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.7rem 0;
   border-bottom: 1px solid #e5e7eb;
+  transition: background 0.2s;
+}
+
+.expense-list li:hover {
+  background: #f8fafc;
+}
+
+.expense-list li div span {
+  display: block;
+  font-size: 0.8rem;
+  color: #64748b;
+}
+
+.amount {
+  font-weight: 600;
+  color: #dc2626;
 }

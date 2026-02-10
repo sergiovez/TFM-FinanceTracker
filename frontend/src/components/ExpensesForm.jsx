@@ -80,7 +80,7 @@ export default function ExpensesForm() {
   if (loadingCategories) return <p>Cargando categorías...</p>;
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="expense-card">
       <h2>Nuevo gasto</h2>
 
       {/* Mensaje de error si existe */}
@@ -89,41 +89,54 @@ export default function ExpensesForm() {
       {success && <p className="success">{success}</p>}
 
       <div className="expense-form">
-        {/* Importe del gasto */}
-        <input
-          type="number"
-          step="0.01"
-          value={amount}
-          onChange={e => setAmount(e.target.value)}
-          placeholder="Importe"
-        />
+        {/* IMPORTE GRANDE */}
+        <div className="amount-wrapper">
+          <span className="amount-icon">€</span>
+          <input
+            type="number"
+            step="0.01"
+            className="amount-input"
+            placeholder="0,00"
+            value={amount}
+            onChange={e => setAmount(e.target.value)}
+          />
+        </div>
 
-        {/* Categoria del gasto */}
-        <select value={category} onChange={e => setCategory(e.target.value)}>
-          <option value="">-- Selecciona categoría --</option>
-          {categories.map(c => (
-            <option key={c.id} value={c.id}>{c.name}</option>
-          ))}
-        </select>
-        
-        {/* Descripcion del gasto */}
-        <input
-          type="text"
-          value={description}
-          onChange={e => setDescription(e.target.value)}
-          placeholder="Descripción (opcional)"
-        />
+        {/* CATEGORÍA */}
+        <div className="field">
+          <span className="field-icon">📂</span>
+          <select value={category} onChange={e => setCategory(e.target.value)}>
+            <option value="">Selecciona categoría</option>
+            {categories.map(c => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
 
-        {/* Fecha del gasto */}
-        <input
-          type="date"
-          value={date}
-          onChange={e => setDate(e.target.value)}
-        />
+        {/* DESCRIPCIÓN */}
+        <div className="field">
+          <span className="field-icon">📝</span>
+          <input
+            type="text"
+            placeholder="Descripción (opcional)"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+          />
+        </div>
 
-        {/* Botón de envío */}
+        {/* FECHA */}
+        <div className="field">
+          <span className="field-icon">📅</span>
+          <input
+            type="date"
+            value={date}
+            onChange={e => setDate(e.target.value)}
+          />
+        </div>
+
+        {/* BOTÓN */}
         <button type="submit" disabled={submitting}>
-          {submitting ? "Añadiendo..." : "Añadir gasto"}
+          {submitting ? <span className="spinner" /> : "Añadir gasto"}
         </button>
       </div>
     </form>
