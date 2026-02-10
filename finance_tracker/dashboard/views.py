@@ -43,22 +43,29 @@ class ExpensesByMonthAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        qs = (
-            Expense.objects
-            .filter(user=request.user)
-            .annotate(month=ExtractMonth("date"))
-            .values("month")
-            .annotate(total=Coalesce(Sum("amount"), Value(0.0)))
-            .order_by("month")
-        )
+        try:
+            qs = (
+                Expense.objects
+                .filter(user=request.user)
+                .annotate(month=ExtractMonth("date"))
+                .values("month")
+                .annotate(total=Coalesce(Sum("amount"), Value(0.0)))
+                .order_by("month")
+            )
 
-        return Response([
-            {
-                "month": e["month"],
-                "total": float(e["total"] or 0),
-            }
-            for e in qs
-        ])
+            return Response([
+                {
+                    "month": e["month"],
+                    "total": float(e["total"] or 0),
+                }
+                for e in qs
+            ])
+        except Exception as e:
+            return Response({
+                "status": "ERROR",
+                "error": str(e),
+                "error_type": e.__class__.__name__,
+            },status=500)
 
 
 class LatestExpensesAPIView(APIView):
