@@ -12,6 +12,23 @@ const MONTH_NAMES = {
   "09": "Septiembre", "10": "Octubre", "11": "Noviembre", "12": "Diciembre",
 };
 
+function normalizeMonth(month) {
+  if (typeof month === "string" && month.includes("-")) {
+    return month.split("-")[1];
+  }
+
+  if (typeof month === "number") {
+    return String(month).padStart(2, "0");
+  }
+
+  return month;
+  }
+
+function monthLabel(month) {
+  const m = normalizeMonth(month);
+  return MONTH_NAMES[m] || m;
+}
+
 export default function Dashboard({
   categoryData = [],
   monthlyData = [],
@@ -48,7 +65,7 @@ export default function Dashboard({
 
   const filteredMonthlyData = useMemo(() => {
     if (!selectedMonth) return monthlyData;
-    return monthlyData.filter(m => m.month === selectedMonth);
+    return monthlyData.filter(m => normalizeMonth(m.month) === selectedMonth);
   }, [monthlyData, selectedMonth]);
 
   const income = useMemo(() => {
@@ -75,11 +92,14 @@ export default function Dashboard({
           onChange={e => setSelectedMonth(e.target.value)}
         >
           <option value="">Todos</option>
-          {monthlyData.map(m => (
-            <option key={m.month} value={m.month}>
-              {MONTH_NAMES[m.month]}
-            </option>
-          ))}
+          {monthlyData.map(m => {
+            const normalized = normalizeMonth(m.month);
+            return (
+              <option key={m.month} value={normalized}>
+                {monthLabel[m.month]}
+              </option>
+            );
+          })}
         </select>
 
         <div className="summary-values">

@@ -10,10 +10,10 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 # Limitar qué metodo HTTP acepta cada vista
 # require_POST → solo acepta peticiones POST
 # require_GET → solo acepta peticiones GET
-from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.http import require_POST, require_GET, require_http_methods
 import json
 
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
 
 
 # Forzar envío de la cookie csrftoken
@@ -51,6 +51,8 @@ def logout_api(request):
     return JsonResponse({"detail": "Logout correcto"})
 
 # Devuelve info del usuario logueado
+@csrf_protect
+@require_http_methods(["GET", "POST"])
 def me_api(request):
     if not request.user.is_authenticated:
         return JsonResponse({"authenticated": False}, status=401)
@@ -86,13 +88,6 @@ def me_api(request):
 
         user.save()
 
-        return JsonResponse({
-            "detail": "Perfil actualizado",
-            "username": user.username,
-            "name": user.first_name,
-            "surname": user.last_name,
-            "email": user.email,
-            "monthly_income": user.monthly_income,
-        })
+        return JsonResponse({"detail": "Perfil actualizado"})
 
     return JsonResponse({"detail": "Método no permitido"}, status=405)
