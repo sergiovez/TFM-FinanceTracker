@@ -25,7 +25,7 @@ class ExpensesByCategoryAPIView(APIView):
                 category_name=Coalesce("category__name", Value("Sin categoría")),
             )
             .values("category_name", "month")
-            .annotate(total=Coalesce(Sum("amount"), 0))
+            .annotate(total=Coalesce(Sum("amount"), Value(0.0)))
             .order_by("month", "category_name")
         )
 
@@ -48,14 +48,14 @@ class ExpensesByMonthAPIView(APIView):
             .filter(user=request.user)
             .annotate(month=ExtractMonth("date"))
             .values("month")
-            .annotate(total=Coalesce(Sum("amount"), 0))
+            .annotate(total=Coalesce(Sum("amount"), Value(0.0)))
             .order_by("month")
         )
 
         return Response([
             {
                 "month": e["month"],
-                "total": float(e["total"]),
+                "total": float(e["total"] or 0),
             }
             for e in qs
         ])
