@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     # Librerias externas
     'rest_framework',
     'corsheaders',
-    'sendgrid-backend',
+    'sendgrid_backend',
 
     # Apps
     'users',
