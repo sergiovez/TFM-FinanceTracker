@@ -4,6 +4,6 @@ from .views import register_request
 
 urlpatterns = [
     # path('', views.home_view, name='home'),
-    path("/register-request/", register_request),
+    path("register-request/", register_request),
 ]
 
