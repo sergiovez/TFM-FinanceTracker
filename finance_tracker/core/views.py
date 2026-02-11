@@ -5,6 +5,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from django.core.mail import send_mail
 from rest_framework import status
+from rest_framework.permissions import AllowAny
+from rest_framework.decorators import permission_classes
 
 # Vista principal del sitio
 def home_view(request):
@@ -15,6 +17,7 @@ def home_view(request):
 # ------------------------------------------------------------
 @csrf_exempt
 @api_view(["POST"])
+@permission_classes([AllowAny])
 def register_request(request):
     name = request.data.get("name")
     surname = request.data.get("surname")
