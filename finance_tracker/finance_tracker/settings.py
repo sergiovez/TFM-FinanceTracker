@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     # Librerias externas
     'rest_framework',
     'corsheaders',
+    'sendgrid-backend',
 
     # Apps
     'users',
@@ -168,12 +169,17 @@ if not DEBUG:
 
 
 #EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
-EMAIL_HOST = "smtp.gmail.com"
+EMAIL_BACKEND = "sendgrid_backend.SendgridBackend"
+SENDGRID_API_KEY = config("SENDGRID_API_KEY")
+#EMAIL_HOST = "smtp.gmail.com"
+EMAIL_HOST = "smtp.sendgrid.net"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 EMAIL_HOST_USER = config("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+#EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_PASSWORD = config("SENDGRID_API_KEY")
+DEFAULT_FROM_EMAIL = config("EMAIL_ENVIO")
 
-DEFAULT_FROM_EMAIL = config("EMAIL_HOST_USER")
+
+
