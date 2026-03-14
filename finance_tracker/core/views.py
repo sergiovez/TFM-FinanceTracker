@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
+from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -36,19 +37,23 @@ def register_request(request):
             status=status.HTTP_400_BAD_REQUEST
         )
 
-    send_mail(
-        subject="Nueva solicitud de acceso",
-        message=(
-            f"Nueva solicitud de acceso:\n\n"
-            f"Nombre: {name}\n"
-            f"Apellidos: {surname}\n"
-            f"Usuario: {username}\n"
-            f"Email: {email}"
-        ),
-        from_email=None,
-        recipient_list=["sergiovez13@gmail.com"],
-        fail_silently=False,
-    )
+    try:
+        send_mail(
+            subject="Nueva solicitud de acceso",
+            message=(
+                f"Nueva solicitud de acceso:\n\n"
+                f"Nombre: {name}\n"
+                f"Apellidos: {surname}\n"
+                f"Usuario: {username}\n"
+                f"Email: {email}"
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=["sergiovez13@gmail.com"],
+            fail_silently=False,
+        )
+    except Exception as e:
+        print("Error enviando email:", e)
+        return Response({"detail": "Error enviando solicitud"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     return Response(
         {"detail": "Solicitud enviada correctamente"},
