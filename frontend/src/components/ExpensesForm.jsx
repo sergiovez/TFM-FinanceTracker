@@ -103,7 +103,7 @@ export default function ExpensesForm() {
         </div>
 
         {/* CATEGORÍA */}
-        <div className="field">
+        <div className="field-category">
           <span className="field-icon">📂</span>
           <select value={category} onChange={e => setCategory(e.target.value)}>
             <option value="">Selecciona categoría</option>
